@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El espejo final · Trabajo Práctico de Cierre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;0,900;1,600&family=Public+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15120d;
+    --bg-2:#1d1811;
+    --glass:#7fa39a;
+    --glass-bright:#bcd8cf;
+    --brass:#bb9058;
+    --brass-bright:#e4bd7c;
+    --parchment:#ece1d1;
+    --muted:#9a8f7a;
+    --rust:#ab5b42;
+    --sage:#7f9a75;
+    --card:#1f1a13;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, #241d13 0%, transparent 60%),
+      var(--bg);
+    color:var(--parchment);
+    font-family:'Public Sans', sans-serif;
+    line-height:1.6;
+  }
+  a{color:var(--brass-bright);}
+
+  /* ---------- Progress bar (mirror shards) ---------- */
+  .progress-bar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(21,18,13,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(187,144,88,0.25);
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .progress-title{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    white-space:nowrap;
+    text-transform:uppercase;
+  }
+  .shards{
+    display:flex;
+    gap:4px;
+    flex:1;
+    min-width:0;
+  }
+  .shard{
+    flex:1;
+    height:16px;
+    clip-path:polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
+    background:rgba(127,163,154,0.18);
+    border:1px solid rgba(127,163,154,0.35);
+    transition:background .4s ease, border-color .4s ease, transform .3s ease;
+  }
+  .shard.lit-ok{background:var(--brass-bright); border-color:var(--brass-bright);}
+  .shard.lit-bad{background:var(--rust); border-color:var(--rust);}
+  .shard.lit-done{background:var(--sage); border-color:var(--sage);}
+  .score-pill{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--brass-bright);
+    white-space:nowrap;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    max-width:900px;
+    margin:0 auto;
+    padding:64px 24px 40px;
+    text-align:center;
+  }
+  .hero-mirror{
+    width:150px;
+    height:190px;
+    margin:0 auto 28px;
+  }
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:clamp(2.2rem, 5vw, 3.4rem);
+    margin:0 0 18px;
+    color:var(--parchment);
+    letter-spacing:-0.01em;
+  }
+  .title em{
+    font-style:italic;
+    color:var(--brass-bright);
+    font-weight:600;
+  }
+  .lede{
+    max-width:640px;
+    margin:0 auto;
+    color:#cfc4b0;
+    font-size:1.05rem;
+  }
+  .meta-row{
+    display:flex;
+    justify-content:center;
+    gap:28px;
+    flex-wrap:wrap;
+    margin-top:32px;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .meta-row strong{color:var(--brass-bright); display:block; font-size:15px; font-family:'Fraunces', serif;}
+
+  /* ---------- Stations ---------- */
+  .path{
+    max-width:760px;
+    margin:0 auto;
+    padding:20px 20px 120px;
+  }
+  .station{
+    position:relative;
+    background:linear-gradient(160deg, var(--card), #17130d);
+    border:1px solid rgba(187,144,88,0.18);
+    border-radius:6px;
+    padding:34px 32px;
+    margin-bottom:28px;
+    box-shadow:0 20px 40px -25px rgba(0,0,0,0.6);
+  }
+  .station::before{
+    content:'';
+    position:absolute;
+    left:0; top:24px; bottom:24px;
+    width:3px;
+    background:linear-gradient(var(--brass), transparent);
+    opacity:0.6;
+  }
+  .station-eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--glass-bright);
+    display:block;
+    margin-bottom:10px;
+  }
+  .station-title{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.35rem;
+    margin:0 0 14px;
+    color:var(--parchment);
+  }
+  .station-prompt{
+    color:#d8cebb;
+    margin-bottom:20px;
+  }
+  .station-prompt blockquote{
+    margin:14px 0;
+    padding:12px 18px;
+    border-left:2px solid var(--brass);
+    font-style:italic;
+    color:var(--glass-bright);
+    background:rgba(127,163,154,0.06);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .option{
+    text-align:left;
+    padding:13px 16px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:5px;
+    color:var(--parchment);
+    font-family:'Public Sans', sans-serif;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .option:hover:not(:disabled){
+    border-color:var(--glass);
+    background:rgba(127,163,154,0.08);
+  }
+  .option:disabled{cursor:default;}
+  .option.correct{
+    border-color:var(--sage);
+    background:rgba(127,154,117,0.15);
+    color:var(--glass-bright);
+  }
+  .option.incorrect{
+    border-color:var(--rust);
+    background:rgba(171,91,66,0.15);
+  }
+  .feedback{
+    margin-top:18px;
+    padding:16px 18px;
+    border-radius:5px;
+    background:rgba(187,144,88,0.08);
+    border:1px solid rgba(187,144,88,0.2);
+    font-size:0.92rem;
+    color:#d8cebb;
+  }
+  .feedback strong{color:var(--brass-bright);}
+
+  /* open / reflective stations */
+  .station.open .station-eyebrow{color:var(--brass-bright);}
+  textarea{
+    width:100%;
+    min-height:130px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:5px;
+    padding:14px;
+    color:var(--parchment);
+    font-family:'Public Sans', sans-serif;
+    font-size:0.95rem;
+    resize:vertical;
+  }
+  textarea:focus{outline:2px solid var(--brass); outline-offset:2px;}
+  .word-count{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:6px;
+    text-align:right;
+  }
+  details.hint{
+    margin-top:14px;
+    font-size:0.88rem;
+  }
+  details.hint summary{
+    cursor:pointer;
+    color:var(--glass-bright);
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  details.hint ul{
+    margin:10px 0 0;
+    padding-left:18px;
+    color:#c2b8a4;
+  }
+  details.hint li{margin-bottom:6px;}
+
+  /* ---------- Final ---------- */
+  .finale{
+    max-width:760px;
+    margin:0 auto 100px;
+    padding:0 20px;
+    text-align:center;
+  }
+  .finale-card{
+    background:linear-gradient(160deg, #221c13, #17130d);
+    border:1px solid var(--brass);
+    border-radius:8px;
+    padding:44px 32px;
+  }
+  .finale h2{
+    font-family:'Fraunces', serif;
+    font-size:2rem;
+    margin:0 0 12px;
+    color:var(--brass-bright);
+  }
+  .finale-score{
+    font-family:'Space Mono', monospace;
+    font-size:2.4rem;
+    color:var(--parchment);
+    margin:18px 0 6px;
+  }
+  .finale-score span{font-size:1rem; color:var(--muted);}
+  .btn{
+    display:inline-block;
+    margin-top:22px;
+    padding:13px 26px;
+    background:var(--brass);
+    color:#191410;
+    border:none;
+    border-radius:5px;
+    font-family:'Public Sans', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition:background .2s ease;
+  }
+  .btn:hover{background:var(--brass-bright);}
+  .copy-status{
+    margin-top:10px;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--sage);
+    min-height:16px;
+  }
+  .note{
+    max-width:760px;
+    margin:0 auto 60px;
+    padding:0 24px;
+    font-size:0.85rem;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .station{padding:26px 20px;}
+    .progress-title{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar">
+  <span class="progress-title">El espejo final</span>
+  <div class="shards" id="shards"></div>
+  <span class="score-pill" id="scorePill">0/7</span>
+</div>
+
+<header class="hero">
+  <svg class="hero-mirror" viewBox="0 0 150 190" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="75" cy="82" rx="58" ry="72" fill="none" stroke="var(--brass)" stroke-width="7"/>
+    <ellipse cx="75" cy="82" rx="48" ry="62" fill="url(#glassGrad)"/>
+    <line x1="75" y1="150" x2="75" y2="178" stroke="var(--brass)" stroke-width="6"/>
+    <rect x="55" y="176" width="40" height="8" rx="2" fill="var(--brass)"/>
+    <path d="M40 40 L75 82 L60 130" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none"/>
+    <path d="M110 50 L75 82" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" fill="none"/>
+    <defs>
+      <radialGradient id="glassGrad" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="var(--glass-bright)"/>
+        <stop offset="60%" stop-color="var(--glass)"/>
+        <stop offset="100%" stop-color="#3c4f4a"/>
+      </radialGradient>
+    </defs>
+  </svg>
+  <p class="eyebrow">Trabajo Práctico de Cierre · Unidad 2</p>
+  <h1 class="title">El espejo <em>no</em> se cierra,<br>se da vuelta</h1>
+  <p class="lede">Ya conociste a Atima Imaoma, a Atima Silencio, a Dorel y a Agustín Peralta. Ahora el espejo te lo devuelve a vos: no para que repitas lo que leíste, sino para que compares, ordenes, discutas y — en las últimas estaciones — escribas con tu propia voz. Diez reflejos, un solo recorrido.</p>
+  <div class="meta-row">
+    <div><strong>10</strong>reflejos</div>
+    <div><strong>30 días</strong>de plazo</div>
+    <div><strong>Sin límite</strong>de intentos para pensar</div>
+  </div>
+</header>
+
+<main class="path">
+
+  <!-- ESTACIÓN 1 -->
+  <section class="station" data-station="1" data-type="mc">
+    <span class="station-eyebrow">Reflejo 01 · Comparación entre portadores</span>
+    <h2 class="station-title">Tres manos, un mismo objeto</h2>
+    <p class="station-prompt">Atima Imaoma, Dorel y Agustín Peralta (el hombre de la crónica documental) atraviesan procesos muy distintos. Uno de ellos nunca tuvo el espejo entre sus manos.</p>
+    <p class="station-prompt">¿Cuál de las siguientes afirmaciones describe mejor la diferencia central entre lo que el espejo hace por Atima y lo que le falta a Agustín en su propio relato?</p>
+    <div class="options">
+      <button class="option">Atima usa el espejo como arma física para defenderse de sus captores; Agustín usa un cuchillo con el mismo fin.</button>
+      <button class="option" data-correct="true">El espejo le devuelve a Atima el nombre y la identidad que le habían arrebatado; Agustín, en cambio, jamás recupera ningún objeto o palabra que lo conecte con "M'Buli" — su origen queda sin ancla material.</button>
+      <button class="option">Ambos personajes usan el espejo para escapar físicamente durante la noche.</button>
+      <button class="option">El espejo perteneció primero a Agustín y luego pasó a manos de Atima.</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>El objeto es ficción; la ausencia de objeto también dice algo.</strong> El espejo es un recurso exclusivo de la novela: le permite a Atima unir letras, descubrir "Atima Imaoma" y sostener su identidad a lo largo del tiempo. Agustín, en cambio, es un testimonio histórico: no tiene espejo, ni nombre propio conservado, ni objeto de origen — solo memoria oral. Comparar los dos relatos te muestra algo importante: la ficción puede darle a un personaje un ancla material para su identidad que la historia real, muchas veces, no dejó registrada.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 2 -->
+  <section class="station" data-station="2" data-type="mc">
+    <span class="station-eyebrow">Reflejo 02 · Cronología</span>
+    <h2 class="station-title">El orden de los hechos</h2>
+    <p class="station-prompt">Tomá estos cuatro momentos de los capítulos 1 y 3:</p>
+    <p class="station-prompt">
+      (A) Atima descubre su nombre completo al mover el espejo frente al pizarrón.<br>
+      (B) Raquel pregunta "¿mi piano se quedará aquí?" al enterarse de que Silencio será vendida.<br>
+      (C) Atima Silencio escucha el "Tam... tam, tam" y decide abandonar el barracón.<br>
+      (D) Atima usa el reflejo del sol sobre el espejo para salvar al hijo del amo.
+    </p>
+    <p class="station-prompt">¿Cuál es el orden cronológico correcto?</p>
+    <div class="options">
+      <button class="option">B → A → D → C</button>
+      <button class="option" data-correct="true">A → B → C → D</button>
+      <button class="option">C → D → A → B</button>
+      <button class="option">A → C → B → D</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>El nombre llega antes que la venta; la huida antes que el rescate.</strong> Primero Atima recupera su nombre a través del espejo (capítulo 1); ese mismo capítulo se cierra con la noticia de la venta a Mendoza, momento en que Raquel revela su ambigüedad moral. Ya en la hacienda (capítulo 3), el tambor la impulsa a huir, y es durante esa fuga que decide usar el espejo para salvar al hijo del amo — acto que le vale la libertad de papel.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 3 -->
+  <section class="station" data-station="3" data-type="mc">
+    <span class="station-eyebrow">Reflejo 03 · Formas de violencia</span>
+    <h2 class="station-title">No toda opresión se parece</h2>
+    <p class="station-prompt">El señor Fontezo y Cabrera, María Petra y el mercado donde exhiben a Atima ejercen tres formas distintas de someter a otra persona. ¿Qué opción vincula correctamente cada uno con el tipo de violencia que representa?</p>
+    <div class="options">
+      <button class="option">Fontezo y Cabrera → miedo psicológico; María Petra → ideología deshumanizante; el mercado → control legal.</button>
+      <button class="option" data-correct="true">Fontezo y Cabrera → ideología que niega el alma y las capacidades (violencia doctrinal); María Petra → advertencias falsas para infundir terror (control psicológico); el mercado → exhibición y tasación de personas (violencia económica y objetivación).</button>
+      <button class="option">Los tres representan exactamente la misma forma de violencia: el castigo físico directo.</button>
+      <button class="option">María Petra → violencia económica; el mercado → miedo; Fontezo y Cabrera → control psicológico.</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>La opresión tiene capas.</strong> No es lo mismo negar el alma de alguien por doctrina (Fontezo y Cabrera), que mantener a alguien encerrado inventando peligros (María Petra), que reducir a una persona a una mercancía tasable (el mercado). Distinguir estas capas es clave para entender que el sistema esclavista no operaba con una sola herramienta, sino con varias, actuando al mismo tiempo sobre cuerpos, mentes y precios.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 4 -->
+  <section class="station" data-station="4" data-type="mc">
+    <span class="station-eyebrow">Reflejo 04 · Un concepto para discutir</span>
+    <h2 class="station-title">"Libertad de papel"</h2>
+    <p class="station-prompt">La novela llama a la libertad que consigue Atima Silencio "libertad de papel". ¿Qué matiz agrega esa expresión, que no agregaría simplemente decir "Atima consiguió su libertad"?</p>
+    <div class="options">
+      <button class="option">Que la libertad era literalmente un pedazo de papel que ella podía vender.</button>
+      <button class="option">Que su libertad era falsa y en realidad seguía siendo esclava en todo sentido.</button>
+      <button class="option" data-correct="true">Que la libertad legal, firmada por el amo, es real pero limitada: resuelve su condición jurídica sin borrar de un día para el otro la vulnerabilidad social y económica en la que queda una persona liberada en ese contexto histórico.</button>
+      <button class="option">Que solo servía para viajar de una provincia a otra.</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>Legal no es sinónimo de completo.</strong> "Libertad de papel" no niega la libertad de Atima: reconoce que fue real, ganada por un acto de compasión y coraje. Pero el adjetivo "de papel" marca que esa libertad depende de un documento firmado por quien tenía el poder de negarla — y que, fuera de ese papel, el mundo social que la rodea no cambió de un día para el otro.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 5 -->
+  <section class="station" data-station="5" data-type="vf">
+    <span class="station-eyebrow">Reflejo 05 · Un símbolo que cambia</span>
+    <h2 class="station-title">El tambor no siempre dice lo mismo</h2>
+    <p class="station-prompt">
+      <blockquote>"Tam, tam... Tam, tam..."</blockquote>
+      Esa frase aparece tanto en el documental "El canto del tambor" (que enmarca la crónica de Agustín) como en el capítulo 3, cuando Atima Silencio escucha el sonido en el techo del barracón.
+    </p>
+    <p class="station-prompt"><strong>Verdadero o falso:</strong> en los dos casos, el tambor cumple exactamente la misma función simbólica: anunciar un peligro inminente.</p>
+    <div class="options">
+      <button class="option">Verdadero</button>
+      <button class="option" data-correct="true">Falso</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>Un mismo sonido, dos sentidos distintos.</strong> En el documental, el tambor enmarca el relato como memoria histórica y testimonio colectivo. En el capítulo 3, en cambio, el tambor no anuncia tragedia: es un llamado a la libertad, una orden interior ("Vamos, Atima Silencio, abandona tu camastro y corre afuera"). El mismo símbolo puede activar sentidos diferentes según el relato que lo sostiene — por eso conviene desconfiar de leer un símbolo "siempre igual" en dos textos distintos.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 6 -->
+  <section class="station" data-station="6" data-type="mc">
+    <span class="station-eyebrow">Reflejo 06 · Contexto histórico</span>
+    <h2 class="station-title">Un camino que no estaba abierto para todos</h2>
+    <p class="station-prompt">Agustín Peralta obtiene su libertad al enrolarse en el Ejército de los Andes bajo las órdenes de San Martín. ¿Por qué ese mismo camino no era una opción real para Atima Silencio en la novela?</p>
+    <div class="options">
+      <button class="option">Porque ella se negó por convicciones políticas propias.</button>
+      <button class="option" data-correct="true">Porque el reclutamiento militar a cambio de libertad era una vía reservada casi exclusivamente a hombres esclavizados enrolados como soldados; su libertad llegó por otro camino: un acto de compasión reconocido por su amo.</button>
+      <button class="option">Porque era demasiado joven para conocer la existencia de la guerra.</button>
+      <button class="option">Porque el ejército de San Martín no aceptaba personas nacidas en América.</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>Las mismas guerras de independencia, caminos distintos según el género.</strong> Comparar a Agustín y a Atima permite ver que "las guerras de independencia trajeron libertad a los esclavizados" es una frase demasiado simple: el modo en que cada persona podía acceder a esa libertad dependía también de su género, de su lugar y de la decisión de un tercero con poder sobre su vida.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 7 (abierta) -->
+  <section class="station open" data-station="7" data-type="open">
+    <span class="station-eyebrow">Reflejo 07 · Metacognición</span>
+    <h2 class="station-title">Elegí tu propia herramienta</h2>
+    <p class="station-prompt">Imaginá que tenés que resumir en una sola hoja todo el recorrido del espejo: sus tres dueños, los saltos temporales entre 1775 y 1825, los capítulos 1 a 3. ¿Qué método de toma de notas elegirías — <strong>Cornell</strong> o el <strong>de Cajas</strong> — para representar mejor esos cambios de dueño y de época? Justificá tu elección en al menos 4 líneas.</p>
+    <textarea data-open="7" placeholder="Escribí acá tu respuesta..."></textarea>
+    <p class="word-count"><span data-count="7">0</span> palabras</p>
+    <details class="hint">
+      <summary>¿Qué podría incluir una buena respuesta?</summary>
+      <ul>
+        <li>Una razón concreta (no solo "porque me gusta más").</li>
+        <li>Cómo resolvería ese método los saltos temporales o los cambios de dueño.</li>
+        <li>Una limitación posible del método que elegiste, y cómo la compensarías.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ESTACIÓN 8 -->
+  <section class="station" data-station="8" data-type="mc">
+    <span class="station-eyebrow">Reflejo 08 · El título en dos niveles</span>
+    <h2 class="station-title">¿Qué significa "El espejo africano"?</h2>
+    <p class="station-prompt">El título de la novela puede leerse en más de un nivel de sentido a la vez. ¿Cuál de las siguientes opciones describe mejor esa doble lectura?</p>
+    <div class="options">
+      <button class="option">Se refiere únicamente al objeto físico que fabricaron artesanos africanos y que luego se vendió en América.</button>
+      <button class="option">Es solo una metáfora: no existe ningún espejo real en la trama, todo es simbólico.</button>
+      <button class="option" data-correct="true">Funciona a la vez como objeto concreto que atraviesa distintas manos a lo largo de casi cincuenta años, y como metáfora de la mirada que cada personaje necesita para reconocer su propio origen o identidad negada.</button>
+      <button class="option">Alude a un espejo que refleja el continente africano completo, como un mapa.</button>
+    </div>
+    <div class="feedback" hidden>
+      <p><strong>El objeto y la metáfora se sostienen mutuamente.</strong> Si el espejo fuera solo un objeto, sería una simple excusa narrativa para unir capítulos; si fuera solo una metáfora, perdería la fuerza de ser algo que un personaje puede literalmente sostener, vender, robar o regalar. La novela funciona porque ambos niveles conviven: cada vez que alguien se mira en el espejo, la novela nos recuerda que también se está mirando a sí mismo.</p>
+    </div>
+  </section>
+
+  <!-- ESTACIÓN 9 (abierta) -->
+  <section class="station open" data-station="9" data-type="open">
+    <span class="station-eyebrow">Reflejo 09 · Escritura comparativa</span>
+    <h2 class="station-title">Culpa y libertad como motores</h2>
+    <p class="station-prompt">En un párrafo de <strong>entre 100 y 150 palabras</strong>, compará el motor que impulsa a Dorel a cruzar por primera vez el umbral de la casa (capítulo 2) con el motor que impulsa a Atima Silencio a cruzar el umbral del barracón para huir (capítulo 3). ¿En qué se parecen y en qué se diferencian la culpa y el deseo de libertad como fuerzas que empujan a un personaje a atravesar un límite?</p>
+    <textarea data-open="9" placeholder="Escribí tu párrafo comparativo acá..."></textarea>
+    <p class="word-count"><span data-count="9">0</span> palabras</p>
+    <details class="hint">
+      <summary>¿Qué podría incluir una buena respuesta?</summary>
+      <ul>
+        <li>Qué cruzan literalmente los dos personajes (una puerta, un barracón) y qué cruzan simbólicamente.</li>
+        <li>Una semejanza real (por ejemplo: ambos actúan por una fuerza interna, no por una orden externa directa).</li>
+        <li>Una diferencia real (la culpa es un asunto entre dos personas; la búsqueda de libertad responde a una condición estructural e histórica).</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ESTACIÓN 10 (abierta / cierre) -->
+  <section class="station open" data-station="10" data-type="open">
+    <span class="station-eyebrow">Reflejo 10 · Tu propio reflejo</span>
+    <h2 class="station-title">¿Con quién te ves reflejado/a?</h2>
+    <p class="station-prompt">De los tres portadores del espejo — Atima Imaoma/Silencio, Dorel o Agustín Peralta — ¿con cuál te identificás más en este momento de tu vida, y por qué? Si podés, pensá en algún paralelismo posible con el presente: migración, desarraigo, búsqueda de identidad, sentir culpa por una injusticia que ves y no provocaste, o cualquier otro que te resuene.</p>
+    <textarea data-open="10" placeholder="No hay una respuesta correcta acá. Escribí con honestidad."></textarea>
+    <p class="word-count"><span data-count="10">0</span> palabras</p>
+  </section>
+
+</main>
+
+<section class="finale">
+  <div class="finale-card">
+    <h2>El espejo te devuelve la mirada</h2>
+    <p style="color:#cfc4b0;">Ya completaste el recorrido. Esto es lo que el espejo refleja de vos hoy — no es una nota final, es un punto de partida para la puesta en común en clase.</p>
+    <div class="finale-score" id="finalScore">0<span> / 7 respuestas objetivas correctas</span></div>
+    <p style="color:var(--muted); font-size:0.9rem;" id="reflectionStatus">0 de 3 reflexiones escritas</p>
+    <button class="btn" id="copyBtn">Copiar mi resumen para entregar</button>
+    <p class="copy-status" id="copyStatus"></p>
+  </div>
+</section>
+
+<p class="note">Este recorrido es una herramienta de estudio y autoevaluación. Guardá o copiá tus respuestas antes de cerrar la página — este espejo no recuerda nada por vos, tal como no lo hacía el espejo de la novela hasta que alguien volvía a mirarlo. Recordá subir tu resumen final al aula virtual dentro de los 30 días.</p>
+
+<script>
+(function(){
+  const objectiveStations = [1,2,3,4,5,6,8];
+  const openStations = [7,9,10];
+  const state = {};
+  objectiveStations.forEach(n => state[n] = null);
+  openStations.forEach(n => state[n] = '');
+
+  // build shards
+  const shardsEl = document.getElementById('shards');
+  for(let i=1;i<=10;i++){
+    const d = document.createElement('div');
+    d.className = 'shard';
+    d.id = 'shard-' + i;
+    shardsEl.appendChild(d);
+  }
+
+  function setShard(n, cls){
+    const el = document.getElementById('shard-' + n);
+    el.classList.remove('lit-ok','lit-bad','lit-done');
+    if(cls) el.classList.add(cls);
+  }
+
+  function updateScorePill(){
+    const answered = objectiveStations.filter(n => state[n] !== null);
+    const correct = objectiveStations.filter(n => state[n] === true);
+    document.getElementById('scorePill').textContent = correct.length + '/7';
+    document.getElementById('finalScore').innerHTML = correct.length + '<span> / 7 respuestas objetivas correctas</span>';
+    const written = openStations.filter(n => state[n] && state[n].trim().length > 15);
+    document.getElementById('reflectionStatus').textContent = written.length + ' de 3 reflexiones escritas';
+  }
+
+  // objective stations
+  document.querySelectorAll('.station[data-type="mc"], .station[data-type="vf"]').forEach(function(section){
+    const n = parseInt(section.dataset.station, 10);
+    const buttons = section.querySelectorAll('.option');
+    const feedback = section.querySelector('.feedback');
+    buttons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(section.dataset.answered) return;
+        section.dataset.answered = 'true';
+        const isCorrect = btn.dataset.correct === 'true';
+        buttons.forEach(function(b){
+          b.disabled = true;
+          if(b.dataset.correct === 'true') b.classList.add('correct');
+          else if(b === btn) b.classList.add('incorrect');
+        });
+        feedback.hidden = false;
+        state[n] = isCorrect;
+        setShard(n, isCorrect ? 'lit-ok' : 'lit-bad');
+        updateScorePill();
+      });
+    });
+  });
+
+  // open stations
+  document.querySelectorAll('textarea[data-open]').forEach(function(ta){
+    const n = parseInt(ta.dataset.open, 10);
+    const countEl = document.querySelector('[data-count="' + n + '"]');
+    ta.addEventListener('input', function(){
+      const words = ta.value.trim().length ? ta.value.trim().split(/\s+/).length : 0;
+      countEl.textContent = words;
+      state[n] = ta.value;
+      setShard(n, ta.value.trim().length > 15 ? 'lit-done' : null);
+      updateScorePill();
+    });
+  });
+
+  // copy summary
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    let out = 'RESUMEN — El espejo final (Trabajo Práctico de Cierre)\n';
+    out += '========================================\n\n';
+    document.querySelectorAll('.station').forEach(function(section){
+      const n = section.dataset.station;
+      const title = section.querySelector('.station-title').textContent;
+      out += 'Reflejo ' + n + ' — ' + title + '\n';
+      if(section.dataset.type === 'open'){
+        const val = state[n] || '(sin respuesta)';
+        out += val + '\n\n';
+      } else {
+        const chosen = section.querySelector('.option:disabled.incorrect, .option:disabled.correct');
+        out += (state[n] === true ? '[correcta] ' : (state[n] === false ? '[a revisar] ' : '[sin responder] '));
+        const correctBtn = section.querySelector('.option[data-correct="true"]');
+        out += (correctBtn ? correctBtn.textContent : '') + '\n\n';
+      }
+    });
+    const status = document.getElementById('copyStatus');
+    navigator.clipboard.writeText(out).then(function(){
+      status.textContent = 'Copiado. Pegalo en el aula virtual o en un documento.';
+    }).catch(function(){
+      status.textContent = 'No se pudo copiar automáticamente. Seleccioná y copiá el texto manualmente.';
+    });
+  });
+
+  updateScorePill();
+})();
+</script>
+
+</body>
+</html>
