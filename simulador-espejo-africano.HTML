@@ -1,0 +1,1248 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El espejo africano - Simulador Interactivo</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card-glass:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0a0b0;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+        }
+        .story-node {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .story-node:hover {
+            transform: translateX(8px);
+        }
+        .story-node.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        .timeline-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .sim-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            outline: none;
+            transition: opacity 0.2s;
+        }
+        .sim-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .sim-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .chart-container {
+            position: relative;
+            min-height: 250px;
+            max-height: 400px;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+        }
+        .drum-animation {
+            animation: drumPulse 1s ease-in-out infinite;
+        }
+        @keyframes drumPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .glow-text {
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+        .overflow-hidden {
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                min-height: 200px;
+                max-height: 300px;
+            }
+            .card-glass {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold glow-text mb-4" style="color: #e8d5b7;">
+                El espejo africano
+            </h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Una exploración interactiva de la esclavitud, la identidad y la libertad<br>
+                a través de la novela de Liliana Bodoc
+            </p>
+            <div class="mt-6 flex items-center justify-center gap-4">
+                <span class="inline-block drum-animation text-3xl">🥁</span>
+                <span class="text-lg italic text-gray-400">"Tam, tam... Tam, tam..."</span>
+                <span class="inline-block drum-animation text-3xl" style="animation-delay: 0.3s;">🥁</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap gap-2 mb-8 justify-center">
+            <button class="tab-btn active" data-tab="simulacion">🔮 Simulación</button>
+            <button class="tab-btn" data-tab="historia">📖 Línea de Tiempo</button>
+            <button class="tab-btn" data-tab="personajes">👥 Personajes</button>
+            <button class="tab-btn" data-tab="notas">📝 Toma de Notas</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content" class="space-y-8">
+            <!-- TAB 1: SIMULACIÓN -->
+            <div id="tab-simulacion" class="tab-panel">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Panel de control: parámetros -->
+                    <div class="card-glass lg:col-span-1">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #e8d5b7;">🎛️ Panel de Exploración</h2>
+                        <p class="text-sm text-gray-400 mb-6">Ajustá estos parámetros para explorar cómo los factores históricos y sociales influyen en la narrativa de <em>El espejo africano</em>.</p>
+                        
+                        <div class="space-y-6">
+                            <!-- Parámetro 1: Presión de la esclavitud -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">
+                                    Presión del sistema esclavista
+                                    <span id="valor-esclavitud" class="text-purple-400 font-bold">50%</span>
+                                </label>
+                                <input type="range" id="esclavitud-slider" class="sim-slider" min="0" max="100" value="50">
+                                <p class="text-xs text-gray-500 mt-1">Define la intensidad de la opresión sobre los personajes.</p>
+                            </div>
+
+                            <!-- Parámetro 2: Resiliencia cultural -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">
+                                    Resiliencia cultural
+                                    <span id="valor-resiliencia" class="text-green-400 font-bold">50%</span>
+                                </label>
+                                <input type="range" id="resiliencia-slider" class="sim-slider" min="0" max="100" value="50">
+                                <p class="text-xs text-gray-500 mt-1">La fuerza de la identidad y la memoria cultural frente a la opresión.</p>
+                            </div>
+
+                            <!-- Parámetro 3: Acción del espejo -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">
+                                    Poder del espejo (conexión entre destinos)
+                                    <span id="valor-espejo" class="text-amber-400 font-bold">50%</span>
+                                </label>
+                                <input type="range" id="espejo-slider" class="sim-slider" min="0" max="100" value="50">
+                                <p class="text-xs text-gray-500 mt-1">La fuerza simbólica del espejo como nexo entre historias.</p>
+                            </div>
+
+                            <!-- Botón de simular -->
+                            <button id="btn-simular" class="w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-300" style="background: linear-gradient(135deg, #667eea, #764ba2); hover:shadow-lg;">
+                                🔄 Simular impacto narrativo
+                            </button>
+                        </div>
+
+                        <!-- Resultado de la simulación -->
+                        <div id="resultado-simulacion" class="mt-6 p-4 rounded-lg bg-black bg-opacity-30 hidden">
+                            <h3 class="font-bold text-lg mb-2">📊 Resultado de la Simulación</h3>
+                            <div id="texto-resultado" class="text-sm text-gray-300"></div>
+                            <div id="detalle-resultado" class="mt-3 text-xs text-gray-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- Columna central: Visualización de la historia -->
+                    <div class="card-glass lg:col-span-2">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #e8d5b7;">🗺️ Mapa Interactivo de la Narrativa</h2>
+                        <p class="text-sm text-gray-400 mb-4">Hacé clic en un nodo para ver detalles del momento narrativo. Los parámetros ajustan la intensidad visual.</p>
+                        
+                        <!-- Nodos de historia -->
+                        <div class="space-y-2">
+                            <div class="story-node selected" data-node="1" style="background: rgba(102, 126, 234, 0.15); border-left: 4px solid #667eea;">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold">Capítulo 1: África y el origen</span>
+                                    <span class="text-xs text-gray-400">1779 - 1791</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Boda de Imaoma y Atima. Captura de Atima Imaoma. Viaje a Buenos Aires.</p>
+                            </div>
+                            <div class="story-node" data-node="2" style="background: rgba(118, 75, 162, 0.15); border-left: 4px solid #764ba2;">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold">Capítulo 2: Dorel y el encierro</span>
+                                    <span class="text-xs text-gray-400">Octubre 1818</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Dorel y María Petra en Valencia. Llega el espejo con el niño pelirrojo.</p>
+                            </div>
+                            <div class="story-node" data-node="3" style="background: rgba(234, 179, 8, 0.15); border-left: 4px solid #eab308;">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold">Capítulo 3: Atima Silencio y la huida</span>
+                                    <span class="text-xs text-gray-400">Octubre 1816</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Atima Silencio escapa de la hacienda. El espejo guía el rescate.</p>
+                            </div>
+                        </div>
+
+                        <!-- Detalle del nodo seleccionado -->
+                        <div id="detalle-nodo" class="mt-6 p-4 rounded-lg bg-black bg-opacity-30">
+                            <h3 id="detalle-titulo" class="font-bold text-lg" style="color: #667eea;">Capítulo 1: África y el origen</h3>
+                            <p id="detalle-descripcion" class="text-sm text-gray-300 mt-2">
+                                La historia comienza en África, con la boda de Imaoma y Atima. El esposo talla un espejo de ébano como regalo. 
+                                Pero la felicidad es interrumpida por los cazadores de hombres. La pequeña Atima Imaoma es secuestrada y llevada 
+                                a América. En Buenos Aires, es comprada por el Sr. Fontenzo y Cabrera, quien la renombra "Silencio". 
+                                El espejo viaja con ella.
+                            </p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <span class="px-2 py-1 text-xs rounded-full bg-blue-500 bg-opacity-20 text-blue-300">🌍 África</span>
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-500 bg-opacity-20 text-green-300">🗺️ América</span>
+                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-500 bg-opacity-20 text-yellow-300">🪞 Espejo</span>
+                                <span class="px-2 py-1 text-xs rounded-full bg-red-500 bg-opacity-20 text-red-300">🔗 Esclavitud</span>
+                            </div>
+                            <div class="mt-3 text-xs text-gray-500 italic">
+                                "Tam, tam... Ya viene el llanto, ya nos arrancan el corazón."
+                            </div>
+                        </div>
+
+                        <!-- Indicador de intensidad visual -->
+                        <div class="mt-6">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Opresión: <span id="barra-opresion-valor">50%</span></span>
+                                <span>Libertad: <span id="barra-libertad-valor">50%</span></span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                                <div id="barra-opresion" class="h-full rounded-full transition-all duration-500" style="width: 50%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-3 mt-2 overflow-hidden">
+                                <div id="barra-libertad" class="h-full rounded-full transition-all duration-500" style="width: 50%; background: linear-gradient(90deg, #eab308, #f59e0b);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de impacto narrativo -->
+                <div class="card-glass mt-6">
+                    <h2 class="text-xl font-bold mb-4" style="color: #e8d5b7;">📈 Impacto Narrativo por Capítulo</h2>
+                    <div class="chart-container">
+                        <canvas id="chartImpacto"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center">Visualización del peso narrativo de cada capítulo según los parámetros ajustados.</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: LÍNEA DE TIEMPO -->
+            <div id="tab-historia" class="tab-panel hidden">
+                <div class="card-glass">
+                    <h2 class="text-2xl font-bold mb-6" style="color: #e8d5b7;">📅 Línea de Tiempo Interactiva</h2>
+                    <p class="text-gray-400 mb-6">Explorá la cronología de los capítulos 1 a 3. Notá cómo el relato no sigue un orden lineal.</p>
+                    
+                    <!-- Línea de tiempo visual -->
+                    <div class="relative">
+                        <!-- Barra de tiempo -->
+                        <div class="flex items-center mb-8">
+                            <div class="w-full h-2 rounded-full bg-gray-700 relative">
+                                <div class="absolute top-0 left-0 h-full rounded-full timeline-bar" style="width: 100%; background: linear-gradient(90deg, #667eea, #764ba2, #eab308);"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Eventos -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-lg" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3);">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">🌍</span>
+                                    <span class="font-bold text-blue-300">1779 - 1791</span>
+                                </div>
+                                <h4 class="font-bold">Capítulo 1: África y América</h4>
+                                <ul class="text-sm text-gray-400 mt-2 space-y-1">
+                                    <li>✔ Boda de Imaoma y Atima</li>
+                                    <li>✔ Captura de Atima Imaoma</li>
+                                    <li>✔ Venta en Buenos Aires</li>
+                                    <li>✔ Renombrada "Silencio"</li>
+                                    <li>✔ Envío a Mendoza</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 rounded-lg" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3);">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">🇪🇸</span>
+                                    <span class="font-bold text-yellow-300">Octubre 1818</span>
+                                </div>
+                                <h4 class="font-bold">Capítulo 2: Dorel en Valencia</h4>
+                                <ul class="text-sm text-gray-400 mt-2 space-y-1">
+                                    <li>✔ Dorel y María Petra</li>
+                                    <li>✔ Llega el niño pelirrojo</li>
+                                    <li>✔ Compra del espejo</li>
+                                    <li>✔ Limpieza del espejo</li>
+                                    <li>✔ Dorel se anima a salir</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 rounded-lg" style="background: rgba(118, 75, 162, 0.1); border: 1px solid rgba(118, 75, 162, 0.3);">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">🏔️</span>
+                                    <span class="font-bold text-purple-300">Octubre 1816</span>
+                                </div>
+                                <h4 class="font-bold">Capítulo 3: Atima Silencio</h4>
+                                <ul class="text-sm text-gray-400 mt-2 space-y-1">
+                                    <li>✔ Hacienda en Mendoza</li>
+                                    <li>✔ Escape durante tormenta</li>
+                                    <li>✔ Persecución y caída</li>
+                                    <li>✔ Espejo guía el rescate</li>
+                                    <li>✔ Se entrega y obtiene libertad</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Anotación sobre la no linealidad -->
+                        <div class="mt-6 p-4 rounded-lg bg-red-900 bg-opacity-20 border border-red-700 border-opacity-30">
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">⚠️</span>
+                                <div>
+                                    <h4 class="font-bold text-red-300">El relato NO es lineal</h4>
+                                    <p class="text-sm text-gray-400 mt-1">
+                                        Mientras que el capítulo 2 ocurre en <strong>1818</strong> (España), el capítulo 3 retrocede a <strong>1816</strong> (Mendoza). 
+                                        La autora quiebra la cronología para generar suspenso y contrastar las historias de Dorel y Atima Silencio. 
+                                        La línea de tiempo es una herramienta que <strong>reconstruye</strong> el orden real de los hechos.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gráfico de dispersión temporal -->
+                <div class="card-glass mt-6">
+                    <h2 class="text-xl font-bold mb-4" style="color: #e8d5b7;">📊 Dispersión Temporal por Capítulo</h2>
+                    <div class="chart-container">
+                        <canvas id="chartTiempo"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center">Cada punto representa un evento clave. La línea muestra el salto temporal en el relato.</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: PERSONAJES -->
+            <div id="tab-personajes" class="tab-panel hidden">
+                <div class="card-glass">
+                    <h2 class="text-2xl font-bold mb-6" style="color: #e8d5b7;">👥 Mapa de Personajes y Relaciones</h2>
+                    <p class="text-gray-400 mb-6">Explorá los personajes de los primeros tres capítulos y sus vínculos. Los diálogos y acciones revelan sus roles en la historia.</p>
+
+                    <!-- Grid de personajes -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Atima Imaoma -->
+                        <div class="p-4 rounded-lg" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">👩🏿</span>
+                                <div>
+                                    <h4 class="font-bold">Atima Imaoma</h4>
+                                    <span class="text-xs text-blue-300">Protagonista - Cap. 1</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Niña africana capturada y esclavizada. Renombrada "Silencio" por su amo. El espejo le revela su verdadero nombre.</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-500 bg-opacity-20 text-blue-300">Esclava</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-500 bg-opacity-20 text-green-300">Identidad</span>
+                            </div>
+                        </div>
+
+                        <!-- Sr. Fontenzo y Cabrera -->
+                        <div class="p-4 rounded-lg" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">👨🏻</span>
+                                <div>
+                                    <h4 class="font-bold">Sr. Fontenzo y Cabrera</h4>
+                                    <span class="text-xs text-red-300">Antagonista - Cap. 1</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Hombre poderoso de Buenos Aires. Compra a Atima Imaoma. Representa la hipocresía del sistema esclavista "ilustrado".</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-500 bg-opacity-20 text-red-300">Amo</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-gray-500 bg-opacity-20 text-gray-300">Opresor</span>
+                            </div>
+                        </div>
+
+                        <!-- Dorel -->
+                        <div class="p-4 rounded-lg" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">👦🏻</span>
+                                <div>
+                                    <h4 class="font-bold">Dorel</h4>
+                                    <span class="text-xs text-yellow-300">Protagonista - Cap. 2</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Huérfano de 17 años en Valencia. Vive aislado y temeroso con María Petra. El espejo lo enfrenta a su propia verdad.</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500 bg-opacity-20 text-yellow-300">Opresión</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-500 bg-opacity-20 text-green-300">Liberación</span>
+                            </div>
+                        </div>
+
+                        <!-- María Petra -->
+                        <div class="p-4 rounded-lg" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">👵🏻</span>
+                                <div>
+                                    <h4 class="font-bold">María Petra</h4>
+                                    <span class="text-xs text-red-300">Antagonista - Cap. 2</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Dueña de una tienda de antigüedades. Mantiene a Dorel encerrado mediante el miedo y la superstición. Prohíbe la música.</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-500 bg-opacity-20 text-red-300">Protectora tóxica</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-gray-500 bg-opacity-20 text-gray-300">Opresión</span>
+                            </div>
+                        </div>
+
+                        <!-- Atima Silencio -->
+                        <div class="p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">👩🏿‍🦱</span>
+                                <div>
+                                    <h4 class="font-bold">Atima Silencio</h4>
+                                    <span class="text-xs text-green-300">Protagonista - Cap. 3</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Hija de Atima Imaoma. Nace en 1802. Hereda el espejo. Escapa de la hacienda y logra su libertad.</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-500 bg-opacity-20 text-green-300">Libertad</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-500 bg-opacity-20 text-blue-300">Herencia</span>
+                            </div>
+                        </div>
+
+                        <!-- El niño pelirrojo -->
+                        <div class="p-4 rounded-lg" style="background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.3);">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">🧒🏻</span>
+                                <div>
+                                    <h4 class="font-bold">Niño pelirrojo</h4>
+                                    <span class="text-xs text-orange-300">Ayudante - Cap. 2</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400">Joven que vende el espejo a la tienda de María Petra. Necesita dinero para medicinas. Es el motor que impulsa a Dorel a actuar.</p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-orange-500 bg-opacity-20 text-orange-300">Catalizador</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-500 bg-opacity-20 text-green-300">Ayudante</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relaciones entre personajes -->
+                    <div class="mt-6 p-4 rounded-lg bg-black bg-opacity-30">
+                        <h3 class="font-bold text-lg mb-3" style="color: #e8d5b7;">🔗 Red de Relaciones</h3>
+                        <p class="text-sm text-gray-400 mb-4">Los personajes se conectan a través del espejo y de los temas de opresión y libertad.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="p-3 rounded-lg" style="background: rgba(102, 126, 234, 0.1);">
+                                <span class="font-bold text-blue-300">Atima Imaoma → Atima Silencio</span>
+                                <p class="text-gray-400 mt-1">Madre e hija. El espejo pasa de una a otra como herencia de identidad y resistencia.</p>
+                            </div>
+                            <div class="p-3 rounded-lg" style="background: rgba(234, 179, 8, 0.1);">
+                                <span class="font-bold text-yellow-300">Dorel → Niño pelirrojo</span>
+                                <p class="text-gray-400 mt-1">El encuentro obliga a Dorel a salir de su encierro. La compra del espejo es un acto de compasión.</p>
+                            </div>
+                            <div class="p-3 rounded-lg" style="background: rgba(220, 38, 38, 0.1);">
+                                <span class="font-bold text-red-300">María Petra ↔ Dorel</span>
+                                <p class="text-gray-400 mt-1">Relación de opresión. Ella lo encierra con miedo; él busca liberarse a través del conocimiento y la música.</p>
+                            </div>
+                            <div class="p-3 rounded-lg" style="background: rgba(16, 185, 129, 0.1);">
+                                <span class="font-bold text-green-300">Atima Silencio ↔ Espejo</span>
+                                <p class="text-gray-400 mt-1">El espejo guía su escape y le otorga la libertad. Es su herramienta de resistencia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: TOMA DE NOTAS -->
+            <div id="tab-notas" class="tab-panel hidden">
+                <div class="card-glass">
+                    <h2 class="text-2xl font-bold mb-6" style="color: #e8d5b7;">📝 Herramienta de Toma de Notas</h2>
+                    <p class="text-gray-400 mb-6">Utilizá el método Cornell o el de Cajas para organizar tu lectura de <em>El espejo africano</em>. Podés simular cómo se verían tus apuntes.</p>
+
+                    <!-- Selector de método -->
+                    <div class="flex gap-4 mb-6">
+                        <button id="metodo-cornell" class="tab-btn active px-4 py-2">Método Cornell</button>
+                        <button id="metodo-cajas" class="tab-btn px-4 py-2">Método de Cajas</button>
+                    </div>
+
+                    <!-- Método Cornell -->
+                    <div id="vista-cornell" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="lg:col-span-1 p-4 rounded-lg" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3);">
+                            <h3 class="font-bold text-blue-300 mb-2">📌 Ideas Clave</h3>
+                            <div class="space-y-2 text-sm text-gray-300">
+                                <div class="p-2 rounded bg-black bg-opacity-20">🔑 Espejo = identidad</div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">🔑 Esclavitud = desarraigo</div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">🔑 Música = resistencia cultural</div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">🔑 No linealidad temporal</div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">🔑 Ayudantes y oponentes</div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2 p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <h3 class="font-bold text-green-300 mb-2">📖 Notas Detalladas</h3>
+                            <div class="space-y-2 text-sm text-gray-300">
+                                <div class="p-2 rounded bg-black bg-opacity-20">
+                                    <strong>Cap. 1:</strong> Atima Imaoma es capturada en África (1779). Renombrada "Silencio" en Buenos Aires. El espejo le revela su nombre.
+                                </div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">
+                                    <strong>Cap. 2:</strong> Dorel (1818, Valencia) vive oprimido por María Petra. El espejo llega con un niño enfermo. Dorel se enfrenta a su reflejo.
+                                </div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">
+                                    <strong>Cap. 3:</strong> Atima Silencio (1816, Mendoza) huye con el espejo. Usa el espejo para guiar el rescate. Obtiene la libertad.
+                                </div>
+                                <div class="p-2 rounded bg-black bg-opacity-20">
+                                    <strong>🧩 Conexiones:</strong> El espejo une África, América y Europa. La opresión se repite en distintos contextos.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-3 p-4 rounded-lg bg-black bg-opacity-30 mt-4">
+                            <h3 class="font-bold text-yellow-300 mb-2">📝 Resumen</h3>
+                            <p class="text-sm text-gray-300">
+                                En los capítulos 1 a 3 de <em>El espejo africano</em>, Liliana Bodoc construye una red de historias entrelazadas por un objeto: el espejo. 
+                                La esclavitud y la negación de la identidad son los ejes centrales. Atima Imaoma y Atima Silencio representan la resistencia 
+                                desde América, mientras que Dorel muestra otra forma de opresión en Europa. La estructura no lineal obliga al lector a 
+                                reconstruir activamente la cronología. El espejo funciona como personaje-ayudante que revela verdades ocultas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Método de Cajas (oculto inicialmente) -->
+                    <div id="vista-cajas" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-lg" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3);">
+                            <h3 class="font-bold text-blue-300 mb-2">🌍 Capítulo 1</h3>
+                            <p class="text-xs text-gray-400">África y América (1779-1791)</p>
+                            <ul class="text-sm text-gray-300 mt-2 space-y-1">
+                                <li>✔ Boda Imaoma y Atima</li>
+                                <li>✔ Captura de Atima Imaoma</li>
+                                <li>✔ Venta en Buenos Aires</li>
+                                <li>✔ Renombrada "Silencio"</li>
+                                <li>✔ Envío a Mendoza</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3);">
+                            <h3 class="font-bold text-yellow-300 mb-2">🇪🇸 Capítulo 2</h3>
+                            <p class="text-xs text-gray-400">Valencia, España (1818)</p>
+                            <ul class="text-sm text-gray-300 mt-2 space-y-1">
+                                <li>✔ Dorel y María Petra</li>
+                                <li>✔ Llega el niño pelirrojo</li>
+                                <li>✔ Compra del espejo</li>
+                                <li>✔ Limpieza del espejo</li>
+                                <li>✔ Dorel sale a la calle</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <h3 class="font-bold text-green-300 mb-2">🏔️ Capítulo 3</h3>
+                            <p class="text-xs text-gray-400">Mendoza, Argentina (1816)</p>
+                            <ul class="text-sm text-gray-300 mt-2 space-y-1">
+                                <li>✔ Hacienda en Mendoza</li>
+                                <li>✔ Escape de Atima Silencio</li>
+                                <li>✔ Persecución y caída</li>
+                                <li>✔ Espejo guía rescate</li>
+                                <li>✔ Obtiene libertad</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);">
+                            <h3 class="font-bold text-red-300 mb-2">🔗 Temas Transversales</h3>
+                            <p class="text-xs text-gray-400">Eslabones comunes</p>
+                            <ul class="text-sm text-gray-300 mt-2 space-y-1">
+                                <li>✔ Esclavitud y opresión</li>
+                                <li>✔ Identidad y nombre</li>
+                                <li>✔ El espejo como nexo</li>
+                                <li>✔ Música como resistencia</li>
+                                <li>✔ No linealidad temporal</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Consejos -->
+                    <div class="mt-6 p-4 rounded-lg bg-black bg-opacity-30">
+                        <h3 class="font-bold text-lg mb-2" style="color: #e8d5b7;">💡 Consejos para tu lectura</h3>
+                        <ul class="text-sm text-gray-400 space-y-1">
+                            <li>✏️ Usá <strong>palabras clave</strong> en lugar de oraciones largas.</li>
+                            <li>✏️ Creá <strong>abreviaturas</strong> propias (ej: → para consecuencia).</li>
+                            <li>✏️ Si leés en PDF, usá la función de <strong>comentarios</strong> en los márgenes.</li>
+                            <li>✏️ Completá la <strong>hoja de ruta</strong> de todos los capítulos antes de seguir leyendo.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm border-t border-gray-700 border-opacity-30 pt-6">
+            <p>Explorable Explanation basada en <em>El espejo africano</em> de Liliana Bodoc</p>
+            <p class="mt-1">Diseñado para fomentar la lectura crítica y la exploración activa de la narrativa histórica.</p>
+        </footer>
+    </div>
+
+    <script>
+        try {
+            // ========== CONFIGURACIÓN GLOBAL ==========
+            console.log('Inicializando aplicación...');
+            
+            // Variables de estado
+            let chartImpacto = null;
+            let chartTiempo = null;
+            let nodoSeleccionado = 1;
+
+            // Datos de nodos de historia
+            const nodosData = {
+                1: {
+                    titulo: 'Capítulo 1: África y el origen',
+                    descripcion: 'La historia comienza en África, con la boda de Imaoma y Atima. El esposo talla un espejo de ébano como regalo. Pero la felicidad es interrumpida por los cazadores de hombres. La pequeña Atima Imaoma es secuestrada y llevada a América. En Buenos Aires, es comprada por el Sr. Fontenzo y Cabrera, quien la renombra "Silencio". El espejo viaja con ella.',
+                    tags: ['🌍 África', '🗺️ América', '🪞 Espejo', '🔗 Esclavitud'],
+                    cita: '"Tam, tam... Ya viene el llanto, ya nos arrancan el corazón."',
+                    opresion: 80,
+                    libertad: 20
+                },
+                2: {
+                    titulo: 'Capítulo 2: Dorel y el encierro',
+                    descripcion: 'Dorel es un huérfano de 17 años que vive en Valencia, España, bajo la estricta tutela de María Petra, dueña de una tienda de antigüedades. Ella lo mantiene aislado mediante el miedo. Un día, un niño pelirrojo llega para vender un espejo de ébano. Dorel lo compra por tres monedas (necesitaba cuatro para las medicinas). Al limpiar el espejo, Dorel ve su rostro gris y envejecido, y siente remordimiento. Decide salir a la calle por primera vez.',
+                    tags: ['🇪🇸 España', '🏚️ Encierro', '🪞 Espejo', '🎻 Música'],
+                    cita: '"Dorel escuchó. Y se miró las manos. Un violín había llegado una vez al negocio de antigüedades."',
+                    opresion: 70,
+                    libertad: 30
+                },
+                3: {
+                    titulo: 'Capítulo 3: Atima Silencio y la huida',
+                    descripcion: 'Atima Silencio, hija de Atima Imaoma, nació en 1802. Su nombre une África (Atima) y América (Silencio). Tras la muerte de sus padres por la peste, solo piensa en escapar de la hacienda en Mendoza. Durante una tormenta, huye llevando el espejo. El hijo mayor del amo la persigue hasta un barranco, donde cae y queda malherido. Atima Silencio usa el espejo para reflejar la luz y guiar a los rescatistas. Se entrega. El amo, agradecido, le otorga la libertad.',
+                    tags: ['🏔️ Mendoza', '🌪️ Tormenta', '🪞 Espejo', '🕊️ Libertad'],
+                    cita: '"En las historias el tiempo puede volver atrás y saltar hacia delante... Alas, eso sí tiene."',
+                    opresion: 40,
+                    libertad: 60
+                }
+            };
+
+            // ========== FUNCIONES DE UTILIDAD ==========
+            function validarElemento(id) {
+                const el = document.getElementById(id);
+                if (!el) {
+                    console.warn(`Elemento con id "${id}" no encontrado.`);
+                    return null;
+                }
+                return el;
+            }
+
+            function mostrarElemento(id) {
+                const el = validarElemento(id);
+                if (el) el.classList.remove('hidden');
+            }
+
+            function ocultarElemento(id) {
+                const el = validarElemento(id);
+                if (el) el.classList.add('hidden');
+            }
+
+            function actualizarTexto(id, texto) {
+                const el = validarElemento(id);
+                if (el) el.textContent = texto;
+            }
+
+            // ========== NAVEGACIÓN ENTRE TABS ==========
+            function initTabs() {
+                console.log('Inicializando tabs...');
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                const tabPanels = {
+                    simulacion: validarElemento('tab-simulacion'),
+                    historia: validarElemento('tab-historia'),
+                    personajes: validarElemento('tab-personajes'),
+                    notas: validarElemento('tab-notas')
+                };
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        try {
+                            const tabName = this.getAttribute('data-tab');
+                            if (!tabName) return;
+
+                            // Desactivar todos los tabs
+                            tabBtns.forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+
+                            // Ocultar todos los paneles
+                            Object.values(tabPanels).forEach(panel => {
+                                if (panel) panel.classList.add('hidden');
+                            });
+
+                            // Mostrar el panel correspondiente
+                            const panelTarget = validarElemento('tab-' + tabName);
+                            if (panelTarget) {
+                                panelTarget.classList.remove('hidden');
+                                // Pequeño retraso para que el DOM se actualice antes de renderizar charts
+                                setTimeout(() => {
+                                    if (tabName === 'simulacion') {
+                                        actualizarChartImpacto();
+                                    } else if (tabName === 'historia') {
+                                        actualizarChartTiempo();
+                                    }
+                                }, 100);
+                            }
+                        } catch (error) {
+                            console.error('Error en cambio de tab:', error);
+                        }
+                    });
+                });
+            }
+
+            // ========== SIMULACIÓN INTERACTIVA ==========
+            function initSimulacion() {
+                console.log('Inicializando simulación...');
+                const esclavitudSlider = validarElemento('esclavitud-slider');
+                const resilienciaSlider = validarElemento('resiliencia-slider');
+                const espejoSlider = validarElemento('espejo-slider');
+                const btnSimular = validarElemento('btn-simular');
+                const resultadoDiv = validarElemento('resultado-simulacion');
+                const textoResultado = validarElemento('texto-resultado');
+                const detalleResultado = validarElemento('detalle-resultado');
+
+                // Actualizar valores mostrados
+                const actualizarValores = function() {
+                    try {
+                        const esclavitud = esclavitudSlider ? parseInt(esclavitudSlider.value) || 0 : 0;
+                        const resiliencia = resilienciaSlider ? parseInt(resilienciaSlider.value) || 0 : 0;
+                        const espejo = espejoSlider ? parseInt(espejoSlider.value) || 0 : 0;
+
+                        actualizarTexto('valor-esclavitud', esclavitud + '%');
+                        actualizarTexto('valor-resiliencia', resiliencia + '%');
+                        actualizarTexto('valor-espejo', espejo + '%');
+
+                        // Actualizar barras de opresión/libertad
+                        const barraOpresion = validarElemento('barra-opresion');
+                        const barraLibertad = validarElemento('barra-libertad');
+                        if (barraOpresion) {
+                            const opresionVal = Math.min(100, Math.max(0, esclavitud - resiliencia * 0.3 + 20));
+                            barraOpresion.style.width = opresionVal + '%';
+                            actualizarTexto('barra-opresion-valor', Math.round(opresionVal) + '%');
+                        }
+                        if (barraLibertad) {
+                            const libertadVal = Math.min(100, Math.max(0, resiliencia + espejo * 0.3 + 10));
+                            barraLibertad.style.width = libertadVal + '%';
+                            actualizarTexto('barra-libertad-valor', Math.round(libertadVal) + '%');
+                        }
+                    } catch (error) {
+                        console.error('Error actualizando valores:', error);
+                    }
+                };
+
+                // Eventos de sliders
+                if (esclavitudSlider) esclavitudSlider.addEventListener('input', actualizarValores);
+                if (resilienciaSlider) resilienciaSlider.addEventListener('input', actualizarValores);
+                if (espejoSlider) espejoSlider.addEventListener('input', actualizarValores);
+
+                // Botón simular
+                if (btnSimular) {
+                    btnSimular.addEventListener('click', function() {
+                        try {
+                            const esclavitud = esclavitudSlider ? parseInt(esclavitudSlider.value) || 0 : 0;
+                            const resiliencia = resilienciaSlider ? parseInt(resilienciaSlider.value) || 0 : 0;
+                            const espejo = espejoSlider ? parseInt(espejoSlider.value) || 0 : 0;
+
+                            // Lógica de simulación
+                            const nivelOpresion = esclavitud - resiliencia * 0.5;
+                            const nivelLibertad = resiliencia + espejo * 0.5;
+                            const conexionDestinos = espejo * 0.7 + resiliencia * 0.3;
+
+                            let resultadoTexto = '';
+                            let detalleTexto = '';
+
+                            if (nivelOpresion > 60) {
+                                resultadoTexto = '🔴 Contexto de alta opresión: La esclavitud domina la narrativa. Los personajes luchan por mantener su identidad frente a un sistema avasallante.';
+                                detalleTexto = 'La negación de la identidad es total. El espejo debe luchar contra la corriente para conectar los destinos.';
+                            } else if (nivelOpresion > 30) {
+                                resultadoTexto = '🟡 Equilibrio tenso: La opresión está presente pero la resistencia cultural genera fisuras en el sistema.';
+                                detalleTexto = 'Los personajes comienzan a cuestionar su lugar. El espejo funciona como puente entre la opresión y la esperanza.';
+                            } else {
+                                resultadoTexto = '🟢 Mayor libertad: La resiliencia cultural y el poder simbólico del espejo permiten que los personajes encuentren caminos hacia la emancipación.';
+                                detalleTexto = 'La identidad prevalece. La música, la memoria y el espejo son herramientas de liberación.';
+                            }
+
+                            if (conexionDestinos > 70) {
+                                detalleTexto += ' El espejo conecta fuertemente los destinos de África, América y Europa.';
+                            } else if (conexionDestinos > 40) {
+                                detalleTexto += ' El espejo conecta los destinos de manera moderada, con algunos saltos temporales.';
+                            } else {
+                                detalleTexto += ' El espejo tiene una conexión débil. Las historias se sienten más aisladas.';
+                            }
+
+                            if (resultadoDiv) resultadoDiv.classList.remove('hidden');
+                            if (textoResultado) textoResultado.textContent = resultadoTexto;
+                            if (detalleResultado) detalleResultado.textContent = detalleTexto;
+
+                            // Actualizar chart
+                            actualizarChartImpacto();
+
+                        } catch (error) {
+                            console.error('Error en simulación:', error);
+                            if (textoResultado) textoResultado.textContent = 'Ocurrió un error al procesar la simulación.';
+                        }
+                    });
+                }
+
+                // Inicializar valores
+                actualizarValores();
+            }
+
+            // ========== NODOS DE HISTORIA INTERACTIVOS ==========
+            function initNodosHistoria() {
+                console.log('Inicializando nodos de historia...');
+                const nodos = document.querySelectorAll('.story-node');
+                
+                nodos.forEach(nodo => {
+                    nodo.addEventListener('click', function() {
+                        try {
+                            const nodeId = parseInt(this.getAttribute('data-node'));
+                            if (isNaN(nodeId)) return;
+
+                            nodoSeleccionado = nodeId;
+                            
+                            // Deseleccionar todos
+                            nodos.forEach(n => n.classList.remove('selected'));
+                            this.classList.add('selected');
+
+                            // Actualizar detalle
+                            const data = nodosData[nodeId];
+                            if (!data) return;
+
+                            const tituloEl = validarElemento('detalle-titulo');
+                            const descripcionEl = validarElemento('detalle-descripcion');
+                            
+                            if (tituloEl) tituloEl.textContent = data.titulo;
+                            if (descripcionEl) descripcionEl.textContent = data.descripcion;
+
+                        } catch (error) {
+                            console.error('Error al seleccionar nodo:', error);
+                        }
+                    });
+                });
+            }
+
+            // ========== CHARTS (CHART.JS) ==========
+            function crearChartImpacto() {
+                try {
+                    const canvas = document.getElementById('chartImpacto');
+                    if (!canvas) {
+                        console.warn('Canvas chartImpacto no encontrado');
+                        return null;
+                    }
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return null;
+
+                    // Destruir chart anterior si existe
+                    if (chartImpacto) {
+                        chartImpacto.destroy();
+                        chartImpacto = null;
+                    }
+
+                    const esclavitudSlider = validarElemento('esclavitud-slider');
+                    const resilienciaSlider = validarElemento('resiliencia-slider');
+                    const espejoSlider = validarElemento('espejo-slider');
+
+                    const esclavitud = esclavitudSlider ? parseInt(esclavitudSlider.value) || 50 : 50;
+                    const resiliencia = resilienciaSlider ? parseInt(resilienciaSlider.value) || 50 : 50;
+                    const espejo = espejoSlider ? parseInt(espejoSlider.value) || 50 : 50;
+
+                    // Datos ponderados por capítulo
+                    const dataCaps = [
+                        Math.min(100, (esclavitud * 0.6 + espejo * 0.2 + 10)),
+                        Math.min(100, (esclavitud * 0.3 + resiliencia * 0.3 + espejo * 0.2 + 15)),
+                        Math.min(100, (resiliencia * 0.5 + espejo * 0.3 + 20))
+                    ];
+
+                    chartImpacto = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Capítulo 1\n(África - América)', 'Capítulo 2\n(España)', 'Capítulo 3\n(Mendoza)'],
+                            datasets: [{
+                                label: 'Impacto Narrativo (%)',
+                                data: dataCaps,
+                                backgroundColor: [
+                                    'rgba(102, 126, 234, 0.7)',
+                                    'rgba(234, 179, 8, 0.7)',
+                                    'rgba(16, 185, 129, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(102, 126, 234, 1)',
+                                    'rgba(234, 179, 8, 1)',
+                                    'rgba(16, 185, 129, 1)'
+                                ],
+                                borderWidth: 2,
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleColor: '#e8d5b7',
+                                    bodyColor: '#e0e0e0'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.05)'
+                                    },
+                                    ticks: {
+                                        color: '#a0a0b0',
+                                        callback: function(value) { return value + '%'; }
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: '#a0a0b0'
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    return chartImpacto;
+                } catch (error) {
+                    console.error('Error creando chart de impacto:', error);
+                    return null;
+                }
+            }
+
+            function actualizarChartImpacto() {
+                try {
+                    crearChartImpacto();
+                } catch (error) {
+                    console.error('Error actualizando chart impacto:', error);
+                }
+            }
+
+            function crearChartTiempo() {
+                try {
+                    const canvas = document.getElementById('chartTiempo');
+                    if (!canvas) {
+                        console.warn('Canvas chartTiempo no encontrado');
+                        return null;
+                    }
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return null;
+
+                    // Destruir chart anterior
+                    if (chartTiempo) {
+                        chartTiempo.destroy();
+                        chartTiempo = null;
+                    }
+
+                    // Datos de eventos con año y capítulo
+                    const eventos = [
+                        { año: 1779, capitulo: 1, evento: 'Boda de Imaoma y Atima' },
+                        { año: 1785, capitulo: 1, evento: 'Captura de Atima Imaoma' },
+                        { año: 1791, capitulo: 1, evento: 'Revelación del nombre' },
+                        { año: 1802, capitulo: 3, evento: 'Nacimiento de Atima Silencio' },
+                        { año: 1816, capitulo: 3, evento: 'Huida de Atima Silencio' },
+                        { año: 1818, capitulo: 2, evento: 'Dorel compra el espejo' }
+                    ];
+
+                    const años = eventos.map(e => e.año);
+                    const capitulos = eventos.map(e => e.capitulo);
+                    const nombresEventos = eventos.map(e => e.evento);
+
+                    chartTiempo = new Chart(ctx, {
+                        type: 'scatter',
+                        data: {
+                            datasets: [{
+                                label: 'Eventos clave',
+                                data: eventos.map(e => ({ x: e.año, y: e.capitulo })),
+                                backgroundColor: [
+                                    'rgba(102, 126, 234, 0.8)',
+                                    'rgba(102, 126, 234, 0.8)',
+                                    'rgba(102, 126, 234, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(234, 179, 8, 0.8)'
+                                ],
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                borderWidth: 1,
+                                pointRadius: 8,
+                                pointHoverRadius: 12
+                            }, {
+                                label: 'Conexión temporal',
+                                data: eventos.map(e => ({ x: e.año, y: e.capitulo })),
+                                type: 'line',
+                                borderColor: 'rgba(255,255,255,0.2)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                fill: false,
+                                pointRadius: 0,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#a0a0b0'
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleColor: '#e8d5b7',
+                                    bodyColor: '#e0e0e0',
+                                    callbacks: {
+                                        label: function(context) {
+                                            const index = context.dataIndex;
+                                            if (index !== undefined && nombresEventos[index]) {
+                                                return nombresEventos[index] + ' (Año: ' + eventos[index].año + ')';
+                                            }
+                                            return 'Año: ' + context.parsed.x + ', Capítulo: ' + context.parsed.y;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Año',
+                                        color: '#a0a0b0'
+                                    },
+                                    min: 1775,
+                                    max: 1825,
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.05)'
+                                    },
+                                    ticks: {
+                                        color: '#a0a0b0'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Capítulo',
+                                        color: '#a0a0b0'
+                                    },
+                                    min: 0.5,
+                                    max: 3.5,
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.05)'
+                                    },
+                                    ticks: {
+                                        color: '#a0a0b0',
+                                        stepSize: 1,
+                                        callback: function(value) {
+                                            const map = {1: 'Cap. 1', 2: 'Cap. 2', 3: 'Cap. 3'};
+                                            return map[value] || value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    return chartTiempo;
+                } catch (error) {
+                    console.error('Error creando chart de tiempo:', error);
+                    return null;
+                }
+            }
+
+            function actualizarChartTiempo() {
+                try {
+                    crearChartTiempo();
+                } catch (error) {
+                    console.error('Error actualizando chart tiempo:', error);
+                }
+            }
+
+            // ========== MÉTODOS DE TOMA DE NOTAS ==========
+            function initMetodosNotas() {
+                console.log('Inicializando métodos de notas...');
+                const btnCornell = validarElemento('metodo-cornell');
+                const btnCajas = validarElemento('metodo-cajas');
+                const vistaCornell = validarElemento('vista-cornell');
+                const vistaCajas = validarElemento('vista-cajas');
+
+                if (btnCornell) {
+                    btnCornell.addEventListener('click', function() {
+                        try {
+                            this.classList.add('active');
+                            if (btnCajas) btnCajas.classList.remove('active');
+                            if (vistaCornell) vistaCornell.classList.remove('hidden');
+                            if (vistaCajas) vistaCajas.classList.add('hidden');
+                        } catch (error) {
+                            console.error('Error cambiando a método Cornell:', error);
+                        }
+                    });
+                }
+
+                if (btnCajas) {
+                    btnCajas.addEventListener('click', function() {
+                        try {
+                            this.classList.add('active');
+                            if (btnCornell) btnCornell.classList.remove('active');
+                            if (vistaCajas) vistaCajas.classList.remove('hidden');
+                            if (vistaCornell) vistaCornell.classList.add('hidden');
+                        } catch (error) {
+                            console.error('Error cambiando a método de Cajas:', error);
+                        }
+                    });
+                }
+            }
+
+            // ========== INICIALIZACIÓN COMPLETA ==========
+            document.addEventListener('DOMContentLoaded', function() {
+                try {
+                    console.log('DOM cargado. Inicializando todos los componentes...');
+                    
+                    // Inicializar tabs
+                    initTabs();
+                    
+                    // Inicializar simulación
+                    initSimulacion();
+                    
+                    // Inicializar nodos de historia
+                    initNodosHistoria();
+                    
+                    // Inicializar métodos de notas
+                    initMetodosNotas();
+                    
+                    // Crear charts iniciales con un pequeño retraso
+                    setTimeout(() => {
+                        try {
+                            crearChartImpacto();
+                            console.log('Chart de impacto creado exitosamente.');
+                        } catch (e) {
+                            console.error('Error al crear chart de impacto inicial:', e);
+                        }
+                    }, 200);
+                    
+                    setTimeout(() => {
+                        try {
+                            crearChartTiempo();
+                            console.log('Chart de tiempo creado exitosamente.');
+                        } catch (e) {
+                            console.error('Error al crear chart de tiempo inicial:', e);
+                        }
+                    }, 300);
+
+                    // Manejo de resize para charts
+                    let resizeTimeout;
+                    window.addEventListener('resize', function() {
+                        clearTimeout(resizeTimeout);
+                        resizeTimeout = setTimeout(function() {
+                            try {
+                                // Solo actualizar charts visibles
+                                const tabSim = validarElemento('tab-simulacion');
+                                const tabHist = validarElemento('tab-historia');
+                                if (tabSim && !tabSim.classList.contains('hidden')) {
+                                    actualizarChartImpacto();
+                                }
+                                if (tabHist && !tabHist.classList.contains('hidden')) {
+                                    actualizarChartTiempo();
+                                }
+                            } catch (error) {
+                                console.error('Error en resize handler:', error);
+                            }
+                        }, 250);
+                    });
+
+                    console.log('✅ Aplicación inicializada correctamente.');
+
+                } catch (error) {
+                    console.error('Error crítico en inicialización:', error);
+                    // Mostrar mensaje de error amigable
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'fixed top-4 right-4 bg-red-600 text-white p-4 rounded-lg shadow-lg z-50';
+                        errorDiv.innerHTML = '⚠️ Error al cargar la aplicación. Recargá la página.';
+                        document.body.appendChild(errorDiv);
+                        setTimeout(() => {
+                            if (errorDiv.parentNode) errorDiv.parentNode.removeChild(errorDiv);
+                        }, 5000);
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Error fatal en la aplicación:', error);
+            document.addEventListener('DOMContentLoaded', function() {
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="text-center py-20">
+                            <h1 class="text-4xl font-bold text-red-500 mb-4">Error de Carga</h1>
+                            <p class="text-gray-400">Ocurrió un error al cargar la aplicación. Por favor, recargá la página.</p>
+                            <button onclick="location.reload()" class="mt-6 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                                Recargar
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
