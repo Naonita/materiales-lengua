@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video interactivo — Liliana Bodoc</title>
+<style>
+  :root{
+    --lavanda: #E8E4F7;
+    --lavanda-fuerte: #B7ABE0;
+    --menta: #DFF3E8;
+    --menta-fuerte: #8FD6B0;
+    --durazno: #FDE9DE;
+    --durazno-fuerte: #F4B692;
+    --texto: #3A3550;
+    --texto-suave: #6E6884;
+    --blanco: #FFFFFF;
+    --sombra: 0 4px 16px rgba(120, 100, 160, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--lavanda) 0%, var(--menta) 100%);
+    background-attachment: fixed;
+    color: var(--texto);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 22px; }
+  header .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blanco); padding: 8px 18px; border-radius: 999px;
+    box-shadow: var(--sombra); font-size: 13px; font-weight: 600;
+    color: var(--lavanda-fuerte); margin-bottom: 14px;
+  }
+  header h1 { font-size: 24px; margin: 0 0 8px; font-weight: 700; }
+  header p { font-size: 14px; color: var(--texto-suave); max-width: 520px; margin: 0 auto; line-height: 1.5; }
+
+  .video-card {
+    background: var(--blanco); border-radius: 24px; padding: 18px; box-shadow: var(--sombra);
+    position: relative; margin-bottom: 18px;
+  }
+  .video-frame-wrap {
+    position: relative; width: 100%; padding-top: 56.25%; border-radius: 16px; overflow: hidden;
+    background: #000;
+  }
+  #player { position: absolute; top:0; left:0; width:100%; height:100%; }
+
+  .checkpoints-bar {
+    display: flex; gap: 6px; margin-top: 14px;
+  }
+  .checkpoint-dot {
+    flex: 1; height: 8px; border-radius: 999px; background: var(--lavanda);
+    position: relative; overflow: hidden;
+  }
+  .checkpoint-dot.done { background: var(--menta-fuerte); }
+  .checkpoint-dot.current { background: var(--durazno-fuerte); }
+
+  .overlay {
+    position: absolute; inset: 18px; background: rgba(58, 53, 80, 0.55);
+    border-radius: 16px; display: none; align-items: center; justify-content: center;
+    padding: 16px; z-index: 5;
+  }
+  .overlay.active { display: flex; }
+  .overlay-card {
+    background: var(--blanco); border-radius: 18px; padding: 22px 22px; max-width: 480px; width: 100%;
+    box-shadow: var(--sombra); max-height: 90%; overflow-y: auto;
+  }
+  .overlay-card .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; color: #9C4A18;
+    background: var(--durazno); padding: 3px 10px; border-radius: 999px; margin-bottom: 10px;
+  }
+  .overlay-card .question { font-size: 16px; font-weight: 700; margin: 0 0 16px; line-height: 1.4; }
+  .opt {
+    display: block; width: 100%; text-align: left; background: var(--lavanda);
+    border: 2px solid transparent; border-radius: 14px; padding: 12px 16px;
+    font-size: 14px; color: var(--texto); margin-bottom: 8px; cursor: pointer;
+    transition: transform .15s ease, background .15s ease; line-height: 1.4;
+  }
+  .opt:hover:not(:disabled) { transform: translateY(-2px); background: var(--lavanda-fuerte); color: white; }
+  .opt.correct { background: var(--menta-fuerte); color: #1F5C3B; }
+  .opt.wrong { background: #F6C8D6; color: #7A2242; }
+  .feedback { margin-top: 12px; padding: 12px 14px; background: #FCF3D8; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+  .btn {
+    display: inline-block; margin-top: 14px; background: var(--durazno-fuerte);
+    color: #6A2C0C; border: none; padding: 10px 22px; border-radius: 999px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn.secondary { background: var(--menta-fuerte); color: #1F5C3B; }
+
+  .status-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: var(--texto-suave); margin-top: 10px;
+  }
+  #start-btn {
+    display: block; margin: 0 auto; background: var(--lavanda-fuerte); color: white;
+    border: none; padding: 12px 28px; border-radius: 999px; font-size: 15px; font-weight: 700;
+    cursor: pointer;
+  }
+
+  .notes-box {
+    background: var(--blanco); border-radius: 18px; padding: 18px 20px; box-shadow: var(--sombra);
+    font-size: 13px; line-height: 1.6; color: var(--texto-suave);
+  }
+  .notes-box h3 { color: var(--texto); font-size: 14px; margin: 0 0 8px; }
+  .notes-box code {
+    background: var(--amarillo, #FCF3D8); padding: 1px 5px; border-radius: 4px; font-size: 12px;
+  }
+
+  footer { text-align: center; margin-top: 22px; font-size: 12px; color: var(--texto-suave); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="badge">Video interactivo · estilo H5P</span>
+    <h1>Liliana Bodoc: vida y obra</h1>
+    <p>Mirá la entrevista y respondé las preguntas que van a aparecer en distintos momentos. El video se pausa solo — cuando termines de responder, seguí viendo.</p>
+  </header>
+
+  <div class="video-card">
+    <div class="video-frame-wrap">
+      <div id="player"></div>
+      <div class="overlay" id="overlay">
+        <div class="overlay-card" id="overlay-card"></div>
+      </div>
+    </div>
+    <div class="checkpoints-bar" id="checkpoints-bar"></div>
+    <div class="status-row">
+      <span id="status-text">Presioná play para empezar</span>
+      <span id="score-text">Puntaje: 0 / 0</span>
+    </div>
+  </div>
+
+  <div class="notes-box">
+    <h3>⚠️ Importante antes de usarlo</h3>
+    <p>No pude mirar ni transcribir el video (no tengo forma de procesar audio), así que armé las preguntas con datos generales y verificados sobre Liliana Bodoc, y ubiqué los "checkpoints" en momentos aproximados (a modo de ejemplo). <strong>Te recomiendo mirar el video una vez y ajustar dos cosas en el código:</strong></p>
+    <p>1. El tiempo exacto de cada checkpoint (variable <code>time</code> en segundos, dentro de <code>CHECKPOINTS</code> en el script).<br>
+    2. El contenido de la pregunta, para que coincida con lo que Liliana Bodoc dice en ese momento puntual.</p>
+    <p>Si me pasás el minuto exacto y una frase de referencia de cada momento que quieras preguntar, te ajusto el archivo con precisión.</p>
+  </div>
+
+  <footer>
+    Video: "#Retratos entrevista a Liliana Bodoc" (El Diario de la República, 2017). Preguntas basadas en datos biográficos públicos sobre la autora.
+  </footer>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+const VIDEO_ID = "EdbPTLOh2SM";
+
+// EDITÁ ESTOS CHECKPOINTS: "time" en segundos, ajustalo después de mirar el video real.
+const CHECKPOINTS = [
+  {
+    time: 30,
+    tag: "Checkpoint 1 (ejemplo — ajustar)",
+    q: "¿En qué provincia argentina nació Liliana Bodoc?",
+    opts: ["Santa Fe", "Mendoza", "Buenos Aires"],
+    correct: 0,
+    exp: "Nació en Santa Fe en 1958, aunque desde los 5 años vivió en Mendoza, provincia con la que se la asocia fuertemente."
+  },
+  {
+    time: 90,
+    tag: "Checkpoint 2 (ejemplo — ajustar)",
+    q: "¿Cómo se llama la trilogía que la consagró como autora de literatura fantástica?",
+    opts: ["La Saga de los Confines", "Tiempo de Dragones", "Memorias impuras"],
+    correct: 0,
+    exp: "La Saga de los Confines (Los días del Venado, Los días de la Sombra, Los días del Fuego) fue publicada entre 2000 y 2004 y es su obra más reconocida."
+  },
+  {
+    time: 150,
+    tag: "Checkpoint 3 (ejemplo — ajustar)",
+    q: "¿En qué se inspira principalmente el mundo de La Saga de los Confines?",
+    opts: ["En las culturas precolombinas americanas", "En la mitología nórdica", "En la Edad Media europea"],
+    correct: 0,
+    exp: "A diferencia de gran parte de la fantasía épica tradicional (de raíz europea), Bodoc construyó su saga a partir de las culturas y cosmovisiones precolombinas de América."
+  },
+  {
+    time: 210,
+    tag: "Checkpoint 4 (ejemplo — ajustar)",
+    q: "¿Qué día se conmemora el Día Provincial del Libro Infantil y Juvenil en Mendoza, y por qué esa fecha?",
+    opts: [
+      "El 21 de julio, porque es el día de su nacimiento",
+      "El 8 de marzo, por el Día de la Mujer",
+      "El 2 de abril, Día del Libro Infantil"
+    ],
+    correct: 0,
+    exp: "Se eligió el 21 de julio, fecha de nacimiento de Liliana Bodoc, como homenaje a su legado en la literatura infantil y juvenil."
+  }
+];
+
+let player;
+let currentCheckpointIndex = 0;
+let answeredCheckpoints = new Set();
+let score = 0;
+
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    videoId: VIDEO_ID,
+    playerVars: { rel: 0, modestbranding: 1 },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady() {
+  renderCheckpointsBar();
+  document.getElementById('status-text').textContent = "Reproduciendo...";
+  updateScoreText();
+  setInterval(checkTime, 500);
+}
+
+function onPlayerStateChange(e) {
+  if (e.data === YT.PlayerState.PLAYING) {
+    document.getElementById('status-text').textContent = "Reproduciendo...";
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    document.getElementById('status-text').textContent = "En pausa";
+  } else if (e.data === YT.PlayerState.ENDED) {
+    document.getElementById('status-text').textContent = "Video terminado — ¡buen trabajo!";
+  }
+}
+
+function checkTime() {
+  if (!player || typeof player.getCurrentTime !== 'function') return;
+  const t = player.getCurrentTime();
+  CHECKPOINTS.forEach((cp, i) => {
+    if (!answeredCheckpoints.has(i) && t >= cp.time) {
+      triggerCheckpoint(i);
+    }
+  });
+}
+
+function triggerCheckpoint(i) {
+  if (answeredCheckpoints.has(i)) return;
+  answeredCheckpoints.add(i);
+  player.pauseVideo();
+  const cp = CHECKPOINTS[i];
+  const overlay = document.getElementById('overlay');
+  const card = document.getElementById('overlay-card');
+  card.innerHTML = `
+    <span class="tag">${cp.tag}</span>
+    <p class="question">${cp.q}</p>
+    <div id="opts"></div>
+    <div id="feedback"></div>
+  `;
+  const optsDiv = card.querySelector('#opts');
+  cp.opts.forEach((opt, j) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+    btn.onclick = () => selectOpt(i, j);
+    optsDiv.appendChild(btn);
+  });
+  overlay.classList.add('active');
+  renderCheckpointsBar();
+}
+
+function selectOpt(cpIndex, optIndex) {
+  const cp = CHECKPOINTS[cpIndex];
+  const card = document.getElementById('overlay-card');
+  const buttons = card.querySelectorAll('.opt');
+  buttons.forEach((b, j) => {
+    b.disabled = true;
+    if (j === cp.correct) b.classList.add('correct');
+    else if (j === optIndex) b.classList.add('wrong');
+  });
+  if (optIndex === cp.correct) score++;
+  updateScoreText();
+  card.querySelector('#feedback').innerHTML = `
+    <div class="feedback">${cp.exp}</div>
+    <button class="btn" id="continue-btn">Continuar video</button>
+  `;
+  card.querySelector('#continue-btn').onclick = () => {
+    document.getElementById('overlay').classList.remove('active');
+    player.playVideo();
+    renderCheckpointsBar();
+  };
+}
+
+function renderCheckpointsBar() {
+  const bar = document.getElementById('checkpoints-bar');
+  bar.innerHTML = '';
+  CHECKPOINTS.forEach((cp, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'checkpoint-dot' + (answeredCheckpoints.has(i) ? ' done' : '');
+    bar.appendChild(dot);
+  });
+}
+
+function updateScoreText() {
+  document.getElementById('score-text').textContent = `Puntaje: ${score} / ${CHECKPOINTS.length}`;
+}
+</script>
+
+</body>
+</html>

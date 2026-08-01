@@ -1,0 +1,957 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia de la Esclavitud en Argentina - Simulación Interactiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: #faf7f2;
+            color: #2d2b2a;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .timeline-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #4a3728, #8b6914, #c4952e, #d4a843, #e8c56e);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #8b6914;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid #faf7f2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .slider-thumb::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            background: #8b6914;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid #faf7f2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .person-icon {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            margin: 0 2px;
+            transition: all 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            min-height: 250px;
+            max-height: 400px;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        .tab-btn.active {
+            background: #8b6914;
+            color: white;
+            border-color: #8b6914;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .heritage-badge {
+            background: linear-gradient(135deg, #4a3728, #8b6914);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .quote-box {
+            border-left: 4px solid #8b6914;
+            background: #fdf8f0;
+            padding: 1rem 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1rem 0;
+        }
+        .nav-btn {
+            background: #8b6914;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-btn:hover {
+            background: #6b4f0e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139,105,20,0.3);
+        }
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #8b6914;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in">
+            <div class="inline-block bg-gradient-to-r from-[#4a3728] to-[#8b6914] text-white px-4 py-1 rounded-full text-sm font-semibold mb-3">
+                🇦🇷 Patrimonio Cultural Argentino
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2d2b2a] mb-3">
+                Historia de la Esclavitud<br>en Argentina
+            </h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Explora el legado africano que construyó nuestra identidad: desde el siglo XVI hasta nuestros días.
+                <br><span class="text-[#8b6914] font-semibold">Mueve el control deslizante del tiempo y descubre cómo cambió la historia.</span>
+            </p>
+            <div class="mt-4 flex items-center justify-center gap-2 flex-wrap">
+                <span class="heritage-badge">🕊️ 1585 - Primeros africanos</span>
+                <span class="heritage-badge">📜 1777-1812 Tráfico masivo</span>
+                <span class="heritage-badge">✊ 1810 - 1/3 de la población</span>
+                <span class="heritage-badge">🏛️ 2010 - Censo reconoce</span>
+            </div>
+        </header>
+
+        <!-- Main Simulation Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Left Panel: Timeline & Controls -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Time Control Card -->
+                <div class="card fade-in">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span class="step-number">1</span> Línea del Tiempo
+                    </h2>
+                    <div class="mb-4">
+                        <input type="range" id="timeSlider" class="w-full slider-thumb" min="1550" max="2024" value="1585" step="1">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>1550</span>
+                            <span>1777</span>
+                            <span>1810</span>
+                            <span>1853</span>
+                            <span>2024</span>
+                        </div>
+                    </div>
+                    <div id="yearDisplay" class="text-center text-2xl font-bold text-[#8b6914] mb-2">1585</div>
+                    <div id="eraLabel" class="text-center text-sm text-gray-600 bg-[#fdf8f0] py-2 px-3 rounded-lg">Llegada de los primeros africanos a Buenos Aires</div>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Población Buenos Aires</span>
+                            <span id="popTotal" class="font-bold">~500</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mt-1 overflow-hidden">
+                            <div id="popBarAfrican" class="h-full bg-[#8b6914] transition-all duration-500 rounded-full" style="width:10%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1">
+                            <span id="popAfrican" class="text-[#8b6914] font-semibold">Afro: ~50</span>
+                            <span id="popOther" class="text-gray-500">Otros: ~450</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="card fade-in">
+                    <h3 class="font-bold mb-3">🔍 Momentos Clave</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(1585)">1585: Llegada</button>
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(1777)">1777: Tráfico masivo</button>
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(1810)">1810: Revolución</button>
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(1853)">1853: Abolición</button>
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(2010)">2010: Censo</button>
+                        <button class="bg-[#fdf8f0] border border-[#8b6914] text-[#8b6914] px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#8b6914] hover:text-white transition-all" onclick="jumpToYear(2024)">2024: Actualidad</button>
+                    </div>
+                </div>
+
+                <!-- Ventura Story Card -->
+                <div class="card fade-in bg-gradient-to-br from-[#fdf8f0] to-white border border-[#e8c56e]">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl">🏅</span>
+                        <div>
+                            <h3 class="font-bold text-[#4a3728]">Historia de Ventura</h3>
+                            <p class="text-sm text-gray-600 mt-1">Un africano esclavizado por Martín de Álzaga que denunció una conspiración española. El Primer Triunvirato le otorgó la libertad, una medalla de plata y el derecho a portar uniforme y sable.</p>
+                            <button onclick="jumpToYear(1812)" class="mt-2 text-[#8b6914] text-sm font-semibold hover:underline">Ir a 1812 →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Visualization & Data -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Charts Card -->
+                <div class="card fade-in">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span class="step-number">2</span> Datos Históricos
+                    </h2>
+                    
+                    <!-- Tab Navigation -->
+                    <div class="flex flex-wrap gap-2 mb-4 border-b border-gray-200 pb-2">
+                        <button class="tab-btn active px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-[#8b6914] transition-all" data-tab="tabPoblacion" onclick="switchTab('tabPoblacion')">
+                            📊 Población
+                        </button>
+                        <button class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-[#8b6914] transition-all" data-tab="tabTrafico" onclick="switchTab('tabTrafico')">
+                            🚢 Tráfico de esclavos
+                        </button>
+                        <button class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-[#8b6914] transition-all" data-tab="tabLegado" onclick="switchTab('tabLegado')">
+                            🌿 Legado cultural
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div id="tabPoblacion" class="tab-content block">
+                        <div class="chart-container">
+                            <canvas id="populationChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">Evolución de la población afrodescendiente en Buenos Aires (estimación histórica)</p>
+                    </div>
+                    <div id="tabTrafico" class="tab-content hidden">
+                        <div class="chart-container">
+                            <canvas id="traficoChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">Buques con esclavos llegados a Buenos Aires y Montevideo (1777-1812)</p>
+                    </div>
+                    <div id="tabLegado" class="tab-content hidden">
+                        <div class="chart-container">
+                            <canvas id="legadoChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">Aportes culturales de origen africano en la Argentina actual</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Model: Cause → Effect -->
+                <div class="card fade-in">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span class="step-number">3</span> Modelo Causa ↔ Efecto
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                            <div class="text-2xl mb-1">⚓</div>
+                            <h4 class="font-bold text-red-700 text-sm">Causa</h4>
+                            <p id="causeText" class="text-xs text-gray-600 mt-1">Tráfico de esclavos desde África</p>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+                            <div class="text-2xl mb-1">🔄</div>
+                            <h4 class="font-bold text-yellow-700 text-sm">Proceso</h4>
+                            <p id="processText" class="text-xs text-gray-600 mt-1">Explotación laboral y resistencia cultural</p>
+                        </div>
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                            <div class="text-2xl mb-1">🌍</div>
+                            <h4 class="font-bold text-green-700 text-sm">Efecto</h4>
+                            <p id="effectText" class="text-xs text-gray-600 mt-1">Legado cultural afroargentino</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-4 mt-2">
+                        <button id="btnSimular" class="nav-btn" onclick="runSimulation()">▶️ Simular impacto</button>
+                        <span id="simulationStatus" class="text-sm text-gray-500">Listo para explorar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Path Section -->
+        <div class="card fade-in mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="step-number">4</span> Ruta de Aprendizaje: De la Esclavitud al Legado
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-[#fdf8f0] p-4 rounded-xl border border-[#e8c56e]">
+                    <div class="text-2xl mb-2">📖</div>
+                    <h3 class="font-bold text-[#4a3728] text-sm">1. Orígenes</h3>
+                    <p class="text-xs text-gray-600 mt-1">Los primeros africanos llegaron a Buenos Aires en 1585. Provenían de Angola, Congo y Mozambique.</p>
+                </div>
+                <div class="bg-[#fdf8f0] p-4 rounded-xl border border-[#e8c56e]">
+                    <div class="text-2xl mb-2">⚙️</div>
+                    <h3 class="font-bold text-[#4a3728] text-sm">2. Explotación</h3>
+                    <p class="text-xs text-gray-600 mt-1">Entre 1777 y 1812 llegaron 72.000 esclavos en más de 700 barcos. Eran fuerza de trabajo en estancias y hogares.</p>
+                </div>
+                <div class="bg-[#fdf8f0] p-4 rounded-xl border border-[#e8c56e]">
+                    <div class="text-2xl mb-2">✊</div>
+                    <h3 class="font-bold text-[#4a3728] text-sm">3. Resistencia</h3>
+                    <p class="text-xs text-gray-600 mt-1">A pesar de la opresión, los africanos mantuvieron su agencia: saberes medicinales, agrícolas y culturales.</p>
+                </div>
+                <div class="bg-[#fdf8f0] p-4 rounded-xl border border-[#e8c56e]">
+                    <div class="text-2xl mb-2">🎵</div>
+                    <h3 class="font-bold text-[#4a3728] text-sm">4. Legado vivo</h3>
+                    <p class="text-xs text-gray-600 mt-1">Dulce de leche, achuras, payadas... La identidad argentina tiene raíces africanas que hoy se reivindican.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quote & Reflection -->
+        <div class="card fade-in bg-gradient-to-r from-[#4a3728] to-[#8b6914] text-white mb-8">
+            <div class="quote-box bg-white/10 border-l-white/30">
+                <p class="text-lg italic font-light">
+                    "Un esclavo hoy no es alguien que esté inmovilizado por unos grilletes; podemos pensar en la trata de personas, el trabajo rural o industrial en condiciones de explotación como formas de esclavitud. La conquista de la libertad desde la situación de esclavitud es algo que tiene que ser una reivindicación permanente."
+                </p>
+                <p class="text-sm mt-2 font-semibold">— Marisa Pineau, historiadora</p>
+            </div>
+            <p class="text-sm mt-3 text-white/80 text-center">
+                Más de 15.000 argentinos reconocieron ascendencia africana en el Censo 2010. Un número que sigue creciendo.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-500 pt-4 border-t border-gray-200">
+            <p>Contenido basado en el artículo "Historia de la esclavitud en Argentina" de la Secretaría de Cultura de la Nación (2017).</p>
+            <p>Proyecto educativo interactivo · Explorable Explanation · Modelo Causa-Efecto</p>
+        </footer>
+    </div>
+
+    <script>
+        // ===================== STATE MANAGEMENT =====================
+        const state = {
+            currentYear: 1585,
+            populationAfrican: 50,
+            populationTotal: 500,
+            simulationRunning: false,
+            chartInstances: {}
+        };
+
+        // ===================== DATA =====================
+        const historicalData = {
+            // Población afrodescendiente estimada en Buenos Aires
+            poblacion: [
+                { year: 1585, afro: 50, total: 500 },
+                { year: 1600, afro: 200, total: 1500 },
+                { year: 1650, afro: 800, total: 5000 },
+                { year: 1700, afro: 2000, total: 10000 },
+                { year: 1744, afro: 4000, total: 18000 },
+                { year: 1777, afro: 8000, total: 28000 },
+                { year: 1810, afro: 15000, total: 40000 },
+                { year: 1822, afro: 12000, total: 45000 },
+                { year: 1836, afro: 8000, total: 55000 },
+                { year: 1853, afro: 5000, total: 70000 },
+                { year: 1880, afro: 3000, total: 180000 },
+                { year: 1900, afro: 2000, total: 350000 },
+                { year: 1950, afro: 1500, total: 800000 },
+                { year: 2000, afro: 5000, total: 2000000 },
+                { year: 2010, afro: 15000, total: 2500000 },
+                { year: 2024, afro: 25000, total: 3000000 }
+            ],
+            // Tráfico de esclavos (datos históricos: 700 barcos, 72.000 esclavos entre 1777-1812)
+            trafico: [
+                { year: 1777, barcos: 20, esclavos: 2500 },
+                { year: 1780, barcos: 35, esclavos: 4000 },
+                { year: 1785, barcos: 50, esclavos: 5500 },
+                { year: 1790, barcos: 60, esclavos: 7000 },
+                { year: 1795, barcos: 55, esclavos: 6500 },
+                { year: 1800, barcos: 70, esclavos: 8000 },
+                { year: 1805, barcos: 65, esclavos: 7500 },
+                { year: 1810, barcos: 45, esclavos: 5000 },
+                { year: 1812, barcos: 20, esclavos: 2500 }
+            ],
+            // Legado cultural (datos ilustrativos)
+            legado: [
+                { categoria: 'Gastronomía', items: ['Dulce de leche', 'Achuras', 'Carbonada'], valor: 85 },
+                { categoria: 'Música', items: ['Payadas', 'Candombe', 'Milonga'], valor: 90 },
+                { categoria: 'Lengua', items: ['Tangó', 'Mandinga', 'Mucama'], valor: 60 },
+                { categoria: 'Saberes', items: ['Medicina herbal', 'Agricultura', 'Trabajo en metal'], valor: 75 },
+                { categoria: 'Identidad', items: ['Reconocimiento censal', 'Día del Afroargentino'], valor: 40 }
+            ]
+        };
+
+        // ===================== HELPER FUNCTIONS =====================
+        function safeGetData(dataArray, year) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                console.warn('safeGetData: dataArray is empty or not an array');
+                return null;
+            }
+            // Find closest year
+            let closest = dataArray[0];
+            let minDiff = Math.abs(dataArray[0].year - year);
+            for (let i = 1; i < dataArray.length; i++) {
+                const diff = Math.abs(dataArray[i].year - year);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = dataArray[i];
+                }
+            }
+            return closest;
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        // ===================== UPDATE FUNCTIONS =====================
+        function updateUI(year) {
+            try {
+                state.currentYear = year;
+                const dataPoint = safeGetData(historicalData.poblacion, year);
+                if (!dataPoint) {
+                    console.error('updateUI: No data point found for year', year);
+                    return;
+                }
+
+                // Update year display
+                document.getElementById('yearDisplay').textContent = year;
+                document.getElementById('timeSlider').value = year;
+
+                // Update population
+                const afro = dataPoint.afro;
+                const total = dataPoint.total;
+                const other = total - afro;
+                const afroPercent = total > 0 ? (afro / total) * 100 : 0;
+
+                document.getElementById('popTotal').textContent = total.toLocaleString();
+                document.getElementById('popAfrican').textContent = `Afro: ${afro.toLocaleString()}`;
+                document.getElementById('popOther').textContent = `Otros: ${other.toLocaleString()}`;
+                document.getElementById('popBarAfrican').style.width = `${afroPercent}%`;
+
+                // Update era label
+                updateEraLabel(year);
+
+                // Update cause-effect model
+                updateCauseEffectModel(year);
+
+                // Update charts
+                updateCharts(year);
+
+                console.log(`updateUI: Year ${year}, Afro ${afro}, Total ${total}`);
+            } catch (error) {
+                console.error('Error en updateUI:', error);
+            }
+        }
+
+        function updateEraLabel(year) {
+            try {
+                let label = '';
+                if (year >= 1550 && year < 1585) label = 'Periodo precolonial: La trata aún no llega al Río de la Plata';
+                else if (year >= 1585 && year < 1600) label = '1585: Llegada de los primeros africanos a Buenos Aires';
+                else if (year >= 1600 && year < 1700) label = 'Siglo XVII: Crecimiento de la población africana en las estancias jesuíticas';
+                else if (year >= 1700 && year < 1744) label = 'Aumento sostenido del tráfico de esclavos hacia el puerto de Buenos Aires';
+                else if (year >= 1744 && year < 1777) label = 'Buenos Aires se consolida como puerto esclavista';
+                else if (year >= 1777 && year < 1810) label = '1777-1812: Apogeo del tráfico - 700 barcos, 72.000 esclavos';
+                else if (year >= 1810 && year < 1820) label = '1810: Revolución de Mayo - 1/3 de la población es afrodescendiente';
+                else if (year >= 1820 && year < 1836) label = 'Guerras de independencia: los afroargentinos luchan por la libertad';
+                else if (year >= 1836 && year < 1853) label = 'Declive de la población afro por guerras y epidemias';
+                else if (year >= 1853 && year < 1880) label = '1853: Abolición de la esclavitud en la Constitución Nacional';
+                else if (year >= 1880 && year < 1900) label = 'Inmigración europea masiva: invisibilización del legado africano';
+                else if (year >= 1900 && year < 1950) label = 'Siglo XX: el mito de la "Argentina blanca" oculta las raíces africanas';
+                else if (year >= 1950 && year < 2000) label = 'Resurgimiento del interés por la historia afroargentina';
+                else if (year >= 2000 && year < 2010) label = '2000-2010: Luchas por el reconocimiento y la visibilización';
+                else if (year >= 2010 && year < 2024) label = '2010: Censo nacional incorpora pregunta sobre ascendencia africana';
+                else if (year >= 2024) label = '2024: Más de 15.000 argentinos reconocen su ascendencia africana. ¡El legado está vivo!';
+                else label = 'Explorando la historia...';
+
+                document.getElementById('eraLabel').textContent = label;
+            } catch (error) {
+                console.error('Error en updateEraLabel:', error);
+                document.getElementById('eraLabel').textContent = 'Explorando la historia...';
+            }
+        }
+
+        function updateCauseEffectModel(year) {
+            try {
+                let cause = 'Tráfico de esclavos desde África';
+                let process = 'Explotación laboral y resistencia cultural';
+                let effect = 'Legado cultural afroargentino';
+
+                if (year < 1585) {
+                    cause = 'Aún no llegan africanos al Río de la Plata';
+                    process = 'Pueblos originarios son la principal fuerza laboral';
+                    effect = 'No hay influencia africana significativa';
+                } else if (year >= 1585 && year < 1777) {
+                    cause = 'Llegada gradual de esclavos africanos (1585-1777)';
+                    process = 'Trabajo en estancias jesuíticas y hogares; resistencia cultural incipiente';
+                    effect = 'Primeras influencias en gastronomía y lenguas locales';
+                } else if (year >= 1777 && year < 1810) {
+                    cause = 'Apogeo del tráfico: 700 barcos, 72.000 esclavos';
+                    process = 'Explotación intensiva en Buenos Aires, Córdoba y el litoral';
+                    effect = 'La población afro llega al 30% del total; saberes africanos se integran';
+                } else if (year >= 1810 && year < 1853) {
+                    cause = 'Revolución de Mayo y guerras de independencia';
+                    process = 'Afroargentinos luchan por la libertad; casos como Ventura obtienen la libertad';
+                    effect = 'Abolición gradual de la esclavitud (Constitución de 1853)';
+                } else if (year >= 1853 && year < 1950) {
+                    cause = 'Abolición legal de la esclavitud + inmigración europea masiva';
+                    process = 'Invisibilización sistemática de la población y cultura afro';
+                    effect = 'Mito de la "Argentina blanca"; legado africano subestimado';
+                } else if (year >= 1950 && year < 2010) {
+                    cause = 'Movimientos de reivindicación de derechos civiles';
+                    process = 'Investigaciones académicas recuperan la historia afroargentina';
+                    effect = 'Se comienza a reconocer el aporte africano a la identidad nacional';
+                } else {
+                    cause = 'Censo 2010: primera pregunta sobre ascendencia africana';
+                    process = 'Más de 15.000 argentinos se reconocen afrodescendientes; Día Nacional del Afroargentino';
+                    effect = 'Legado africano reivindicado: dulce de leche, payadas, candombe, identidad';
+                }
+
+                document.getElementById('causeText').textContent = cause;
+                document.getElementById('processText').textContent = process;
+                document.getElementById('effectText').textContent = effect;
+            } catch (error) {
+                console.error('Error en updateCauseEffectModel:', error);
+            }
+        }
+
+        // ===================== CHART MANAGEMENT =====================
+        function destroyChart(chartKey) {
+            try {
+                if (state.chartInstances[chartKey]) {
+                    state.chartInstances[chartKey].destroy();
+                    delete state.chartInstances[chartKey];
+                    console.log(`Chart ${chartKey} destroyed`);
+                }
+            } catch (error) {
+                console.error(`Error destroying chart ${chartKey}:`, error);
+            }
+        }
+
+        function initPopulationChart() {
+            try {
+                const canvas = document.getElementById('populationChart');
+                if (!canvas) {
+                    console.warn('Canvas populationChart not found');
+                    return;
+                }
+                destroyChart('population');
+
+                const ctx = canvas.getContext('2d');
+                const years = historicalData.poblacion.map(d => d.year);
+                const afroData = historicalData.poblacion.map(d => d.afro);
+                const totalData = historicalData.poblacion.map(d => d.total);
+
+                state.chartInstances['population'] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            {
+                                label: 'Población afrodescendiente',
+                                data: afroData,
+                                borderColor: '#8b6914',
+                                backgroundColor: 'rgba(139, 105, 20, 0.1)',
+                                fill: true,
+                                tension: 0.3,
+                                pointBackgroundColor: '#8b6914',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Población total (escala reducida)',
+                                data: totalData.map(v => v * 0.01),
+                                borderColor: '#4a3728',
+                                backgroundColor: 'rgba(74, 55, 40, 0.05)',
+                                fill: false,
+                                tension: 0.3,
+                                borderDash: [5, 5],
+                                pointRadius: 2,
+                                pointHoverRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { fontSize: 11 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        let value = context.parsed.y;
+                                        if (context.datasetIndex === 1) {
+                                            value = Math.round(value * 100);
+                                            return `${label}: ${value.toLocaleString()} (total)`;
+                                        }
+                                        return `${label}: ${value.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Año' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Personas' },
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value >= 1000) {
+                                            return (value / 1000).toFixed(0) + 'k';
+                                        }
+                                        return value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('Population chart initialized');
+            } catch (error) {
+                console.error('Error initPopulationChart:', error);
+            }
+        }
+
+        function initTraficoChart() {
+            try {
+                const canvas = document.getElementById('traficoChart');
+                if (!canvas) {
+                    console.warn('Canvas traficoChart not found');
+                    return;
+                }
+                destroyChart('trafico');
+
+                const ctx = canvas.getContext('2d');
+                const years = historicalData.trafico.map(d => d.year);
+                const barcosData = historicalData.trafico.map(d => d.barcos);
+                const esclavosData = historicalData.trafico.map(d => d.esclavos);
+
+                state.chartInstances['trafico'] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            {
+                                label: 'Buques',
+                                data: barcosData,
+                                backgroundColor: 'rgba(139, 105, 20, 0.7)',
+                                borderColor: '#8b6914',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Esclavos',
+                                data: esclavosData,
+                                backgroundColor: 'rgba(180, 50, 50, 0.5)',
+                                borderColor: '#b43232',
+                                borderWidth: 1,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        let value = context.parsed.y;
+                                        return `${label}: ${value.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Año' } },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Buques' },
+                                ticks: { beginAtZero: true }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Esclavos' },
+                                grid: { drawOnChartArea: false },
+                                ticks: { beginAtZero: true }
+                            }
+                        }
+                    }
+                });
+                console.log('Tráfico chart initialized');
+            } catch (error) {
+                console.error('Error initTraficoChart:', error);
+            }
+        }
+
+        function initLegadoChart() {
+            try {
+                const canvas = document.getElementById('legadoChart');
+                if (!canvas) {
+                    console.warn('Canvas legadoChart not found');
+                    return;
+                }
+                destroyChart('legado');
+
+                const ctx = canvas.getContext('2d');
+                const categorias = historicalData.legado.map(d => d.categoria);
+                const valores = historicalData.legado.map(d => d.valor);
+                const colores = ['#8b6914', '#c4952e', '#d4a843', '#e8c56e', '#b8860b'];
+
+                state.chartInstances['legado'] = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: categorias,
+                        datasets: [{
+                            label: 'Impacto del legado africano (%)',
+                            data: valores,
+                            backgroundColor: 'rgba(139, 105, 20, 0.2)',
+                            borderColor: '#8b6914',
+                            pointBackgroundColor: colores,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#8b6914'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: { display: true },
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                ticks: {
+                                    stepSize: 20,
+                                    font: { size: 10 }
+                                },
+                                pointLabels: {
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('Legado chart initialized');
+            } catch (error) {
+                console.error('Error initLegadoChart:', error);
+            }
+        }
+
+        function updateCharts(year) {
+            try {
+                // Population chart: add vertical line for current year (reinit is simpler)
+                // For simplicity, we'll just reinitialize all charts
+                // But we only want to do this when tab is visible
+                const activeTab = document.querySelector('.tab-content:not(.hidden)');
+                if (activeTab) {
+                    const tabId = activeTab.id;
+                    // Only reinit if the active tab's chart exists
+                    if (tabId === 'tabPoblacion') {
+                        initPopulationChart();
+                    } else if (tabId === 'tabTrafico') {
+                        initTraficoChart();
+                    } else if (tabId === 'tabLegado') {
+                        initLegadoChart();
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+
+        // ===================== TAB SWITCHING =====================
+        function switchTab(tabId) {
+            try {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(el => {
+                    el.classList.add('hidden');
+                    el.classList.remove('block');
+                });
+
+                // Show selected tab
+                const selectedTab = document.getElementById(tabId);
+                if (selectedTab) {
+                    selectedTab.classList.remove('hidden');
+                    selectedTab.classList.add('block');
+                }
+
+                // Update active button styles
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active', 'border-[#8b6914]', 'text-[#8b6914]');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
+
+                const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active', 'border-[#8b6914]', 'text-[#8b6914]');
+                    activeBtn.classList.remove('border-transparent', 'text-gray-500');
+                }
+
+                // Initialize the chart for the selected tab after a small delay
+                setTimeout(() => {
+                    if (tabId === 'tabPoblacion') {
+                        initPopulationChart();
+                    } else if (tabId === 'tabTrafico') {
+                        initTraficoChart();
+                    } else if (tabId === 'tabLegado') {
+                        initLegadoChart();
+                    }
+                }, 100);
+
+                console.log(`Switched to tab: ${tabId}`);
+            } catch (error) {
+                console.error('Error switching tab:', error);
+            }
+        }
+
+        // ===================== SIMULATION =====================
+        function runSimulation() {
+            try {
+                if (state.simulationRunning) {
+                    console.log('Simulation already running');
+                    return;
+                }
+
+                state.simulationRunning = true;
+                const btn = document.getElementById('btnSimular');
+                const status = document.getElementById('simulationStatus');
+                btn.disabled = true;
+                btn.textContent = '⏳ Simulando...';
+                status.textContent = 'Explorando el impacto histórico...';
+
+                // Animate through key years
+                const keyYears = [1585, 1600, 1650, 1700, 1744, 1777, 1810, 1822, 1853, 1880, 1900, 1950, 2010, 2024];
+                let index = 0;
+
+                function step() {
+                    if (index < keyYears.length) {
+                        const year = keyYears[index];
+                        updateUI(year);
+                        status.textContent = `Año ${year}: Observando cambios poblacionales y culturales...`;
+                        index++;
+                        setTimeout(step, 800);
+                    } else {
+                        // End simulation
+                        state.simulationRunning = false;
+                        btn.disabled = false;
+                        btn.textContent = '▶️ Simular impacto';
+                        status.textContent = '✅ Simulación completa. ¡Explora cada año con el control deslizante!';
+                        console.log('Simulation completed');
+                    }
+                }
+
+                step();
+            } catch (error) {
+                console.error('Error in runSimulation:', error);
+                state.simulationRunning = false;
+                const btn = document.getElementById('btnSimular');
+                btn.disabled = false;
+                btn.textContent = '▶️ Simular impacto';
+                document.getElementById('simulationStatus').textContent = '⚠️ Error en la simulación. Intenta de nuevo.';
+            }
+        }
+
+        // ===================== TIMELINE JUMP =====================
+        function jumpToYear(year) {
+            try {
+                const clampedYear = clamp(year, 1550, 2024);
+                document.getElementById('timeSlider').value = clampedYear;
+                updateUI(clampedYear);
+                console.log(`Jumped to year: ${clampedYear}`);
+            } catch (error) {
+                console.error('Error jumping to year:', error);
+            }
+        }
+
+        // ===================== EVENT LISTENERS =====================
+        function initEventListeners() {
+            try {
+                const slider = document.getElementById('timeSlider');
+                if (slider) {
+                    slider.addEventListener('input', function(e) {
+                        const year = parseInt(e.target.value);
+                        updateUI(year);
+                    });
+                    console.log('Slider event listener attached');
+                } else {
+                    console.warn('timeSlider element not found');
+                }
+
+                // Window resize handler for charts
+                let resizeTimeout;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        console.log('Window resized, reinitializing active chart');
+                        const activeTab = document.querySelector('.tab-content:not(.hidden)');
+                        if (activeTab) {
+                            const tabId = activeTab.id;
+                            if (tabId === 'tabPoblacion') initPopulationChart();
+                            else if (tabId === 'tabTrafico') initTraficoChart();
+                            else if (tabId === 'tabLegado') initLegadoChart();
+                        }
+                    }, 300);
+                });
+
+                console.log('All event listeners initialized');
+            } catch (error) {
+                console.error('Error initializing event listeners:', error);
+            }
+        }
+
+        // ===================== INITIALIZATION =====================
+        function init() {
+            try {
+                console.log('Initializing application...');
+                
+                // Initialize charts
+                setTimeout(() => {
+                    initPopulationChart();
+                    initTraficoChart();
+                    initLegadoChart();
+                }, 200);
+
+                // Set initial state
+                updateUI(1585);
+                
+                // Init event listeners
+                initEventListeners();
+
+                console.log('Application initialized successfully');
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        }
+
+        // Run initialization when DOM is ready
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
