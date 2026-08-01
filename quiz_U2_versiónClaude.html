@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El espejo africano | Unidad 2 - Actividad Integradora</title>
+<style>
+  :root{
+    --bg: #1c1a17;
+    --bg-panel: #262320;
+    --bg-panel-soft: rgba(38,35,32,0.7);
+    --border: #3a352f;
+    --border-soft: rgba(58,53,47,0.6);
+    --text: #ece7de;
+    --text-soft: #a89f92;
+    --amber: #d9a441;
+    --amber-soft: rgba(217,164,65,0.15);
+    --amber-border: rgba(217,164,65,0.4);
+    --emerald: #4fae86;
+    --emerald-bg: rgba(79,174,134,0.12);
+    --rose: #c4685f;
+    --rose-bg: rgba(196,104,95,0.12);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  .sans{ font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  header{
+    border-bottom:1px solid var(--border);
+    background:#171512;
+    padding:18px 24px;
+  }
+  .header-inner{
+    max-width:1100px; margin:0 auto;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .eyebrow{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); font-weight:600; margin:0 0 4px; }
+  h1{ font-size:22px; margin:0; letter-spacing:-0.01em; }
+  h1 span{ color:var(--text-soft); font-weight:normal; }
+  nav{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tab-btn{
+    font-family:inherit; cursor:pointer; border-radius:8px; padding:9px 16px;
+    font-size:12px; font-weight:600; border:1px solid var(--border); background:var(--bg);
+    color:var(--text-soft); transition:all .15s ease;
+  }
+  .tab-btn:hover{ color:var(--text); }
+  .tab-btn.active{ background:var(--amber); border-color:var(--amber); color:#171512; }
+  .score-box{
+    display:flex; align-items:center; gap:12px; background:var(--bg); border:1px solid var(--border);
+    padding:8px 16px; border-radius:8px;
+  }
+  .score-box .divider{ width:1px; height:28px; background:var(--border); }
+  .score-box .label{ font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); display:block; }
+  .score-box .value{ font-family:monospace; font-weight:700; color:var(--amber); font-size:15px; }
+
+  main{ flex:1; max-width:1100px; width:100%; margin:0 auto; padding:24px 16px 48px; display:flex; align-items:center; justify-content:center; }
+  .quiz-grid{ display:grid; grid-template-columns: 1fr; gap:20px; width:100%; }
+  @media (min-width:900px){ .quiz-grid{ grid-template-columns: 2fr 1fr; } }
+
+  .card{ background:var(--bg-panel-soft); border:1px solid var(--border-soft); border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.25); }
+  .q-top{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px; }
+  .q-tag{ background:rgba(217,164,65,0.12); color:var(--amber); border:1px solid rgba(217,164,65,0.25); font-size:12px; padding:4px 12px; border-radius:999px; }
+  .q-cat{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-soft); }
+  .q-text{ font-size:17px; line-height:1.55; margin:0 0 22px; }
+
+  .option{
+    display:flex; gap:12px; align-items:flex-start; width:100%; text-align:left;
+    padding:14px 16px; border-radius:12px; border:1px solid var(--border); background:transparent;
+    color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; margin-bottom:10px; transition:all .15s ease;
+  }
+  .option:hover:not(:disabled){ border-color:var(--amber-border); background:rgba(255,255,255,0.02); }
+  .option .key{
+    flex-shrink:0; width:24px; height:24px; border-radius:6px; background:#3a352f; color:var(--text-soft);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:monospace;
+  }
+  .option.selected{ border-color:var(--amber); background:var(--amber-soft); }
+  .option.selected .key{ background:var(--amber); color:#171512; }
+  .option:disabled{ cursor:default; opacity:.55; }
+  .option.correct{ border-color:var(--emerald); background:var(--emerald-bg); opacity:1; font-weight:600; }
+  .option.wrong{ border-color:var(--rose); background:var(--rose-bg); opacity:1; }
+
+  .actions{ margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+  .btn{
+    font-family:inherit; cursor:pointer; border-radius:10px; padding:12px 22px; font-size:12px;
+    font-weight:700; text-transform:uppercase; letter-spacing:.05em; border:none;
+  }
+  .btn-primary{ background:var(--amber); color:#171512; }
+  .btn-primary:disabled{ background:#3a352f; color:#6b6459; cursor:not-allowed; }
+  .btn-secondary{ background:#3a352f; color:var(--text); }
+  .row-end{ display:flex; justify-content:flex-end; }
+
+  .feedback{ border-radius:12px; padding:16px; font-size:13px; line-height:1.6; margin-bottom:14px; }
+  .feedback.ok{ background:var(--emerald-bg); border:1px solid rgba(79,174,134,0.35); color:#bfe6d5; }
+  .feedback.bad{ background:var(--rose-bg); border:1px solid rgba(196,104,95,0.3); color:#f0cac6; }
+  .feedback strong{ display:block; margin-bottom:4px; }
+
+  .reflection-box{ background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .reflection-box h4{ margin:0 0 4px; font-size:12px; color:var(--amber); }
+  .reflection-box p.hint{ font-size:11px; color:var(--text-soft); margin:0 0 12px; }
+  .reflection-text{ font-size:12.5px; color:#d8d2c6; line-height:1.7; font-style:italic; }
+
+  .mirror-panel{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+  .mirror-caption{ margin-top:14px; font-size:12px; font-style:italic; color:var(--text-soft); text-align:center; }
+
+  .result-card{ max-width:480px; margin:0 auto; text-align:center; }
+  .result-badge{ width:88px; height:88px; margin:0 auto 20px; border-radius:50%; background:var(--bg-panel); border:2px solid var(--amber-border); display:flex; align-items:center; justify-content:center; font-size:36px; }
+  .result-score{ background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:24px; margin:18px 0; }
+  .result-score .num{ font-family:monospace; font-weight:800; color:var(--amber); font-size:42px; }
+  .result-score .num small{ color:var(--text-soft); font-size:20px; font-weight:600; }
+
+  .theory-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+  @media (min-width:800px){ .theory-grid{ grid-template-columns:1fr 1fr; } }
+  .theory-card{ background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:18px; }
+  .theory-card h3{ font-size:13px; margin:0 0 8px; color:var(--amber); }
+  .theory-card p{ font-size:12.5px; color:#cfc9bd; line-height:1.65; margin:0; }
+  .theory-quote{ background:rgba(217,164,65,0.08); border:1px solid rgba(217,164,65,0.25); border-radius:12px; padding:16px; text-align:center; font-style:italic; font-size:13px; color:#e0d8c8; margin-top:20px; }
+
+  .oracle-list{ display:flex; flex-direction:column; gap:10px; }
+  .oracle-q-btn{
+    text-align:left; padding:12px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-panel);
+    color:var(--text); font-family:inherit; font-size:13px; cursor:pointer;
+  }
+  .oracle-q-btn:hover{ border-color:var(--amber-border); }
+  .oracle-answer{ background:rgba(217,164,65,0.07); border:1px solid rgba(217,164,65,0.2); border-radius:12px; padding:16px; margin-top:6px; font-size:13px; font-style:italic; line-height:1.7; color:#e0d8c8; }
+
+  footer{ border-top:1px solid #100f0d; background:#100f0d; padding:12px; text-align:center; font-size:11px; font-style:italic; color:var(--text-soft); }
+  .hidden{ display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <p class="eyebrow sans">Unidad 2: Capítulos 1 a 3 | Teoría y lectura</p>
+      <h1>El espejo africano <span>| Actividad integradora</span></h1>
+    </div>
+    <nav id="tabs" class="sans"></nav>
+    <div class="score-box sans">
+      <div><span class="label">Puntaje</span><span class="value" id="scoreLabel">0 / 9</span></div>
+      <div class="divider"></div>
+      <div><span class="label">Progreso</span><span class="value" id="progressLabel" style="color:var(--text)">1 de 9</span></div>
+    </div>
+  </div>
+</header>
+
+<main id="mainArea"></main>
+
+<footer>"Somos cuentos contando cuentos, nada." — Ricardo Reis (Fernando Pessoa)</footer>
+
+<script>
+const QUESTIONS = [
+  { id:1, category:"Teoría: Pacto de Ficción y Paratextos", title:"Tema 1: El latido de la historia",
+    question:"Al inicio de la novela, el sonido constante de los tambores con el ritmo 'Tam... Tam, tam' evoca un latido cultural. ¿Qué representa este recurso sonoro y qué herencia directa constituye en el Río de la Plata?",
+    options:[
+      {key:"A", text:"Es un adorno de terror fantástico heredado de las leyendas coloniales españolas."},
+      {key:"B", text:"Es el latido cultural que sobrevivió a la trata de esclavizados y que se transformó en el candombe rioplatense."},
+      {key:"C", text:"Es una imitación de los latidos del corazón de Raquel mientras borda su mantel de hilo."},
+      {key:"D", text:"Representa el golpeteo de las herramientas en la tienda de antigüedades de Valencia."}
+    ], correctKey:"B",
+    justification:"El 'Tam... Tam, tam' evoca el latido cultural de los ritmos africanos que sobrevivieron a la trata y se transformaron en el candombe de Uruguay y Argentina, integrándose a nuestra identidad.",
+    reflection:"El sonido no es un simple efecto ambiental: es la forma en que la novela hace presente, en el cuerpo del lector, algo que la historia oficial suele silenciar. Bodoc elige el oído antes que el ojo para introducirnos en el relato, y ese gesto ya es una toma de posición: la cultura africana no llega a América solo como mano de obra forzada, sino como una forma de vida que persiste y se transforma.\n\nPensar el candombe como heredero de ese tambor es también pensar la identidad rioplatense como un tejido de orígenes múltiples, no como un origen único y puro. Por eso la unidad insiste en que la esclavitud no es solo un dato del pasado: es una fuerza que sigue sonando, literalmente, en la cultura actual." },
+
+  { id:2, category:"Teoría: Verosimilitud Literaria", title:"Tema 1: El Pacto de Ficción",
+    question:"Cuando un lector acepta que un pequeño espejo de ébano tiene el 'poder' de enlazar vidas separadas por océanos y siglos, ¿qué concepto de la teoría literaria se está poniendo en práctica?",
+    options:[
+      {key:"A", text:"El pacto de ficción, donde el lector suspende su incredulidad y acepta la lógica interna y verosímil de la obra."},
+      {key:"B", text:"La lectura literal y científica de documentos históricos rigurosamente archivados."},
+      {key:"C", text:"El rechazo del verosímil para denunciar la falsedad de los objetos mágicos."},
+      {key:"D", text:"La toma de notas mediante el método de cajas cronológicas."}
+    ], correctKey:"A",
+    justification:"El 'pacto de ficción' es el acuerdo implícito donde el lector acepta reglas ficticias (como el viaje del espejo) como verdades creíbles dentro del universo verosímil que construye Liliana Bodoc.",
+    reflection:"Aceptar que un espejo conecte destinos no significa creer literalmente en objetos mágicos: significa entrar en la lógica que la propia novela propone. Ese acuerdo es lo que permite que lo fantástico conviva con un trasfondo histórico real y verificable, sin que uno le reste veracidad al otro.\n\nEs un buen ejercicio de lectura crítica distinguir qué es verosímil (creíble dentro del mundo narrado) de qué es históricamente exacto (comprobable fuera del texto). La fuerza de El espejo africano está justamente en esa frontera: usa un recurso fantástico para volver más intensa, no menos real, la memoria de la esclavitud." },
+
+  { id:3, category:"Capítulo 1: Entre África y América del Sur", title:"Tema 2: El Origen y la Identidad",
+    question:"¿De qué manera la niña esclava apodada 'Silencio' logra descubrir y recuperar su verdadero nombre (Atima Imaoma) a los doce años?",
+    options:[
+      {key:"A", text:"Porque su amita Raquel se lo lee en secreto en una carta oficial enviada desde Mendoza."},
+      {key:"B", text:"Al mirar el pizarrón del granero reflejado en su espejo de ébano, que muestra la frase 'AMO A MI AMITA' al revés."},
+      {key:"C", text:"Porque el señor Fontezo y Cabrera se apiada de ella y se lo confiesa antes de venderla."},
+      {key:"D", text:"Al escuchar un tambor africano real sonar en las calles del mercado de esclavos de Buenos Aires."}
+    ], correctKey:"B",
+    justification:"En el granero donde Raquel le enseñaba letras en secreto, el espejo de ébano muestra el mundo al revés. Al reflejar 'AMO A MI AMITA', la combinación de letras revela 'ATIMA IM A OMA', devolviéndole su identidad arrebatada.",
+    reflection:"Que el nombre propio aparezca escondido dentro de la frase que la nombraba como propiedad ('amo a mi amita') es uno de los hallazgos más potentes de la novela: la identidad robada estaba, todo el tiempo, cifrada dentro del lenguaje de la sumisión.\n\nEl espejo no inventa el nombre: lo revela, invirtiendo lo que ya estaba escrito. Ese gesto simbólico condensa una idea central de la unidad: recuperar la identidad no es crear algo nuevo, sino leer de otra manera lo que el sistema esclavista intentó borrar." },
+
+  { id:4, category:"Teoría: Análisis de Personajes", title:"Tema 3: Los Personajes de la Época",
+    question:"El material teórico describe al señor Fontezo y Cabrera como un 'amo ilustrado'. ¿Qué contradicción histórica de la época colonial se critica a través de este personaje?",
+    options:[
+      {key:"A", text:"Que quería enseñar música clásica a sus esclavos pero odiaba el sonido del violín."},
+      {key:"B", text:"La hipocresía de leer y sostener la filosofía ilustrada europea sobre la libertad mientras mantenía la propiedad y venta de seres humanos."},
+      {key:"C", text:"Su obsesión por pintar retratos realistas de Atima Imaoma mientras prohibía el uso del yeso."},
+      {key:"D", text:"Que defendía la abolición de la esclavitud en Mendoza pero la promovía activamente en España."}
+    ], correctKey:"B",
+    justification:"El 'amo ilustrado' representa a quienes debatían intelectualmente sobre los derechos humanos y la libertad, pero continuaban sustentando y lucrando con el sistema deshumanizante de la esclavitud.",
+    reflection:"Fontenzo y Cabrera no es un villano caricaturesco: es más incómodo que eso, porque es un hombre culto, capaz de citar ideas ilustradas sobre la libertad, y al mismo tiempo dueño de personas. La novela no resuelve esa contradicción, la expone.\n\nEsta es una de las razones por las que la materia trabaja este personaje desde una mirada de ciencias sociales: no alcanza con juzgar moralmente a un individuo, hay que entender cómo una época entera pudo sostener ese doble discurso como algo 'normal'." },
+
+  { id:5, category:"Capítulo 2: España, Valencia", title:"Tema 3: El Encierro de Dorel",
+    question:"En la tienda de antigüedades de Valencia, ¿cuáles eran los miedos irracionales con los que María Petra mantenía a Dorel recluido sin salir a la calle?",
+    options:[
+      {key:"A", text:"La caída de meteoritos y el ataque de bestias marinas en el puerto de Valencia."},
+      {key:"B", text:"El asedio inminente de los moros y la picadura de una mosca que causaba 'urticaria azul' directa al corazón."},
+      {key:"C", text:"Que si salía a la calle perdería la habilidad natural de lustrar metales y lavar plumas."},
+      {key:"D", text:"Que los sargentos heridos del ejército de San Martín confiscaran todas sus antigüedades."}
+    ], correctKey:"B",
+    justification:"María Petra dominaba al joven huérfano infundiéndole miedos inventados —como los moros o insectos venenosos— para impedirle cruzar el umbral y conocer el mundo real.",
+    reflection:"El encierro de Dorel no tiene rejas: tiene relatos de miedo repetidos con insistencia hasta volverse verdad para quien los escucha. Eso vuelve a María Petra un tipo de opresora distinta a Fontenzo, pero igual de eficaz.\n\nVale la pena notar el paralelismo con la esclavitud del capítulo 1: ambos sistemas de dominación funcionan negando información y fabricando miedo, aunque las herramientas (cadenas versus superstición) sean muy distintas." },
+
+  { id:6, category:"Teoría: Actantes y Ayudantes", title:"Tema 3: Los Ayudantes del Héroe",
+    question:"¿Qué rol cumple el 'niño pelirrojo' y cómo se convierte el propio espejo de ébano en un 'ayudante' para Dorel?",
+    options:[
+      {key:"A", text:"El niño le roba el violín y el espejo ayuda a Dorel a encontrar el camino en el mapa de Valencia."},
+      {key:"B", text:"El niño despierta la compasión de Dorel por su necesidad de comprar medicinas, y el espejo le muestra su propio rostro envejecido, empujándolo a la acción."},
+      {key:"C", text:"El niño lo convence de viajar a Mendoza, y el espejo le sirve para defenderse de la peste."},
+      {key:"D", text:"Ambos actúan como oponentes que defienden las rígidas doctrinas comerciales de María Petra."}
+    ], correctKey:"B",
+    justification:"El niño pelirrojo es un ayudante moral: su necesidad obliga a Dorel a sentir empatía. El espejo actúa como ayudante al confrontarlo con su rostro gris y el temor de volverse idéntico a su opresora.",
+    reflection:"En la estructura de los relatos con 'ayudantes', no siempre el que ayuda actúa con esa intención: el niño pelirrojo solo necesita dinero, pero su aparición cambia el destino de Dorel. La ayuda, muchas veces, llega disfrazada de necesidad ajena.\n\nEl espejo, en cambio, ayuda de un modo más doloroso: no le da a Dorel una salida fácil, le devuelve una verdad incómoda sobre sí mismo. Es un recordatorio de que a veces el primer paso hacia la libertad es simplemente animarse a mirar la propia situación de frente." },
+
+  { id:7, category:"Teoría: Técnicas de Estudio", title:"Tema 4: La Toma de Notas",
+    question:"Si dividís tu hoja de estudio en tres secciones —'Ideas clave' (izquierda), 'Notas de clase' (derecha) y 'Resumen' (abajo)— ¿qué método estás aplicando?",
+    options:[
+      {key:"A", text:"Método de Cajas o Cuadrículas Visuales."},
+      {key:"B", text:"Método Cornell, creado por el profesor Walter Pauk."},
+      {key:"C", text:"Método de Mapas Mentales y Ramas Jerárquicas."},
+      {key:"D", text:"Método de Tablas de Doble Entrada para Personajes."}
+    ], correctKey:"B",
+    justification:"El Método Cornell divide la hoja de manera estructurada para facilitar la retención activa de conceptos (ideas clave, notas de clase y resumen final).",
+    reflection:"Elegir un método de notas no es un detalle menor cuando la novela salta constantemente de tiempo y lugar: cada método ordena la información de una manera distinta, y esa elección afecta qué tan fácil es después reconstruir la cronología real de los hechos.\n\nEl método Cornell funciona especialmente bien para separar 'lo que pasa' de 'lo que eso significa', algo clave en una novela donde cada capítulo tiene tanto acción como carga simbólica (el espejo, los nombres, los objetos)." },
+
+  { id:8, category:"Capítulo 3: Mendoza, 1816", title:"Tema 2: El Espacio y el Tiempo",
+    question:"Durante la huida de Atima Silencio en Mendoza bajo la tormenta de octubre de 1816, ¿qué accidente cambia el rumbo de la persecución?",
+    options:[
+      {key:"A", text:"Un desmoronamiento bloquea el camino de herradura obligando a todos a volver a la hacienda."},
+      {key:"B", text:"El hijo mayor del amo pisa una roca suelta reblandecida por la lluvia y cae gravemente herido al fondo de un barranco."},
+      {key:"C", text:"La esclava pierde el espejo en el río crecido y se rinde inmediatamente ante sus captores."},
+      {key:"D", text:"Una jauría de lobos ataca al sargento del ejército de San Martín que custodiaba las quebradas."}
+    ], correctKey:"B",
+    justification:"La tormenta desestabilizó las quebradas rocosas. El hijo del amo, persiguiéndola, apoyó su bota en una piedra falsa y rodó al barranco.",
+    reflection:"El accidente funciona como un punto de giro narrativo clásico: un hecho fortuito (la lluvia, la piedra suelta) reconfigura por completo la relación de poder entre perseguidor y perseguida. De cazador, el hijo del amo pasa a depender de la persona a la que perseguía.\n\nEste tipo de giro es también una oportunidad para pensar el marco espacio-temporal que trabaja la unidad: el paisaje (la tormenta, el barranco) no es solo decorado, es un actor que interviene en la trama." },
+
+  { id:9, category:"Capítulo 3: Mendoza, 1816", title:"Tema 3: Acciones que Liberan",
+    question:"¿De qué forma utiliza Atima Silencio su espejo para ayudar a su perseguidor herido, y qué le advierte el amo al otorgarle la libertad?",
+    options:[
+      {key:"A", text:"Usa el marco de ébano como entablillado y el amo le advierte que morirá de viruela."},
+      {key:"B", text:"Refleja el sol con el cristal para guiar a los rescatistas. El amo le da la libertad pero le vaticina que volverá a mendigar."},
+      {key:"C", text:"Esconde el espejo en el barranco para guiar a los perros. El amo asegura que su hija Raquel la odiará para siempre."},
+      {key:"D", text:"Refleja los ojos del joven para despertarlo. El amo jura que las tropas confiscarán su herencia."}
+    ], correctKey:"B",
+    justification:"Atima Silencio usa el espejo para guiar con destellos solares a los rescatistas. El amo le otorga la libertad a regañadientes, pero predice con crueldad que la libertad será un desierto hostil para ella.",
+    reflection:"Que Atima Silencio elija ayudar a quien la perseguía es un gesto que la novela no explica del todo con moralina: simplemente muestra que la compasión puede convivir con la urgencia de escapar. El espejo, una vez más, es la herramienta física de ese gesto.\n\nLa advertencia final del amo —vaticinar que la libertad la hará mendigar— es importante para no idealizar el final: obtener la libertad legal no resuelve automáticamente la desigualdad material que va a enfrentar después. Es un buen disparador para pensar qué significaba 'ser libre' en ese contexto histórico concreto." }
+];
+
+const ORACLE_QA = [
+  { q:"¿Qué es el pacto de ficción?",
+    a:"Es el acuerdo silencioso que hacés conmigo apenas abrís la primera página: aceptás que puedo unir destinos separados por océanos y siglos, no porque lo creas posible en tu mundo, sino porque dentro del mío tiene sentido. Sin ese acuerdo, ninguna historia podría respirar." },
+  { q:"¿Por qué la historia no se cuenta en orden?",
+    a:"Porque yo no viajé en línea recta: fui de mano en mano, de continente en continente, de tiempo en tiempo. El relato imita mi propio desorden. La historia completa existe, ordenada, esperando a que la reconstruyas con paciencia — para eso sirve la línea de tiempo." },
+  { q:"¿Por qué María Petra encierra a Dorel?",
+    a:"El miedo es una jaula que no necesita barrotes. Ella construyó la suya con moros imaginarios y una mosca inventada, y Dorel la habitó durante años sin saber que la puerta nunca tuvo llave." },
+  { q:"¿Qué significa que Fontenzo sea un 'amo ilustrado'?",
+    a:"Que un hombre puede leer sobre la libertad en un libro y, al cerrarlo, volver a firmar la venta de una persona. Esa es la herida que llevo grabada desde que salí de sus manos." },
+  { q:"¿Cómo puedo tomar notas mientras leo la novela?",
+    a:"No busques copiarlo todo: buscá los núcleos, esos hechos que si no ocurrieran, mi historia cambiaría entera. Un cuadro simple con capítulo, tiempo y personajes te va a bastar para no perderme el rastro." },
+  { q:"¿Por qué el candombe está relacionado con vos?",
+    a:"Porque el ritmo que tallaron mis primeros dueños no se apagó cuando cruzó el océano: se transformó, encontró nuevos tambores, nuevas manos. Yo solo llevo el eco; la música encontró la forma de seguir viva." }
+];
+
+const REFLECTION_TEXTS = {}; // filled below for quick lookup
+QUESTIONS.forEach(q => REFLECTION_TEXTS[q.id] = q.reflection);
+
+let state = {
+  activeTab: 'quiz',
+  currentIdx: 0,
+  selectedAnswer: null,
+  answered: false,
+  score: 0,
+  quizFinished: false,
+  mirrorState: 'idle',
+  showReflection: false,
+  oracleOpen: null
+};
+
+const tabsEl = document.getElementById('tabs');
+const mainEl = document.getElementById('mainArea');
+const scoreLabel = document.getElementById('scoreLabel');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderTabs(){
+  const tabs = [
+    {id:'quiz', label:'Cuestionario'},
+    {id:'oraculo', label:'El Espejo Parlante 🔮'},
+    {id:'teoria', label:'Resumen Teórico 📖'}
+  ];
+  tabsEl.innerHTML = tabs.map(t =>
+    `<button class="tab-btn ${state.activeTab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+function setTab(id){ state.activeTab = id; render(); }
+
+function svgMirror(){
+  let reflection = 'idleReflect', extra = '';
+  if(state.mirrorState === 'correct'){
+    reflection = 'goldShine';
+    extra = `<g><circle cx="100" cy="115" r="45" fill="none" stroke="#fef08a" stroke-width="1.5" stroke-dasharray="6,6"/></g>`;
+  } else if(state.mirrorState === 'incorrect'){
+    reflection = 'foggyReflect';
+    extra = `<path d="M 70,110 Q 80,95 100,105 Q 120,95 130,110 Q 140,125 125,135 Q 110,140 100,130 Q 90,140 75,135 Q 60,125 70,110 Z" fill="#e7e5e4" opacity="0.5"/>`;
+  }
+  return `
+  <svg viewBox="0 0 200 300" style="width:190px; height:auto;">
+    <defs>
+      <linearGradient id="ebonyWood" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#1c1917"/><stop offset="50%" stop-color="#292524"/><stop offset="100%" stop-color="#0c0a09"/>
+      </linearGradient>
+      <radialGradient id="idleReflect" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#2c2523"/><stop offset="60%" stop-color="#1a1412"/><stop offset="100%" stop-color="#070504"/>
+      </radialGradient>
+      <radialGradient id="goldShine" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fde047"/><stop offset="40%" stop-color="#eab308"/><stop offset="80%" stop-color="#854d0e"/><stop offset="100%" stop-color="#1c1917"/>
+      </radialGradient>
+      <radialGradient id="foggyReflect" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f5f5f4" stop-opacity="0.9"/><stop offset="50%" stop-color="#a8a29e" stop-opacity="0.7"/><stop offset="100%" stop-color="#1c1917"/>
+      </radialGradient>
+    </defs>
+    <path d="M 100,210 C 90,240 85,270 92,295 C 95,299 105,299 108,295 C 115,270 110,240 100,210 Z" fill="url(#ebonyWood)" stroke="#b45309" stroke-width="1.5"/>
+    <ellipse cx="100" cy="115" rx="80" ry="105" fill="url(#ebonyWood)" stroke="#d97706" stroke-width="3.5"/>
+    <ellipse cx="100" cy="115" rx="68" ry="92" fill="url(#${reflection})"/>
+    ${extra}
+    <text x="100" y="188" fill="#d97706" font-size="8" text-anchor="middle" font-family="serif" letter-spacing="1">ATIMA IMAOMA</text>
+  </svg>`;
+}
+
+function renderQuiz(){
+  if(state.quizFinished){
+    const passed = state.score >= 6;
+    mainEl.innerHTML = `
+      <div class="card result-card sans">
+        <div class="result-badge">${state.score===9?'✨':(passed?'🌟':'🌫️')}</div>
+        <h2 style="font-size:20px; margin:0 0 6px;">¡Recorrido de la Unidad 2 completado!</h2>
+        <p style="color:var(--text-soft); font-size:12px;">Evaluaste tu lectura de los capítulos 1 a 3 y los saberes metodológicos de la unidad.</p>
+        <div class="result-score">
+          <span class="label" style="font-size:10px; text-transform:uppercase; color:var(--text-soft);">Calificación final</span><br>
+          <span class="num">${state.score} <small>/ 9</small></span>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:12px;">
+            ${state.score===9 ? '<span style="color:var(--emerald)">¡Excelente! Comprendiste cada cruce de destinos y el marco teórico de la Unidad 2.</span>' :
+              passed ? '<span style="color:var(--amber)">¡Muy bien! Demostraste un sólido conocimiento de la historia y las técnicas de estudio.</span>' :
+              '<span style="color:var(--rose)">Repasá los apuntes sobre el pacto de ficción o el método Cornell y volvé a intentarlo.</span>'}
+          </div>
+        </div>
+        <button class="btn ${passed?'btn-primary':'btn-secondary'}" onclick="restart()">${passed?'Reiniciar actividad':'Intentar nuevamente'}</button>
+      </div>`;
+    return;
+  }
+
+  const q = QUESTIONS[state.currentIdx];
+  const optionsHtml = q.options.map(opt=>{
+    let cls = 'option';
+    if(state.answered){
+      if(opt.key === q.correctKey) cls += ' correct';
+      else if(opt.key === state.selectedAnswer) cls += ' wrong';
+    } else if(opt.key === state.selectedAnswer){
+      cls += ' selected';
+    }
+    return `<button class="${cls}" ${state.answered?'disabled':''} onclick="selectAnswer('${opt.key}')">
+      <span class="key">${opt.key}</span><span>${opt.text}</span>
+    </button>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if(state.answered){
+    const isCorrect = state.selectedAnswer === q.correctKey;
+    feedbackHtml = `
+      <div class="feedback ${isCorrect?'ok':'bad'}">
+        <strong>${isCorrect ? '⭐ El espejo ha acompañado tu respuesta.' : '🌫️ El espejo se ha empañado y no te dejó ver la respuesta correcta.'}</strong>
+        ${q.justification}
+      </div>
+      <div class="reflection-box">
+        <h4>¿Querés profundizar en el marco teórico de este tema?</h4>
+        <p class="hint">Una reflexión ampliada sobre el significado literario de este suceso o técnica.</p>
+        <button class="btn btn-secondary" style="margin-bottom:10px;" onclick="toggleReflection()">${state.showReflection?'Ocultar reflexión':'Ver reflexión ampliada ✨'}</button>
+        ${state.showReflection ? `<div class="reflection-text">${REFLECTION_TEXTS[q.id].split('\\n\\n').map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')}</div>` : ''}
+      </div>
+      <div class="row-end">
+        <button class="btn btn-secondary" onclick="nextQuestion()">${state.currentIdx+1===QUESTIONS.length?'Finalizar actividad':'Siguiente pregunta ➔'}</button>
+      </div>`;
+  } else {
+    feedbackHtml = `<div class="row-end"><button class="btn btn-primary" ${!state.selectedAnswer?'disabled':''} onclick="confirmAnswer()">Confirmar respuesta</button></div>`;
+  }
+
+  mainEl.innerHTML = `
+    <div class="quiz-grid">
+      <div class="card">
+        <div class="q-top sans">
+          <span class="q-tag">${q.title}</span>
+          <span class="q-cat">${q.category}</span>
+        </div>
+        <p class="q-text">${q.question}</p>
+        <div class="sans">${optionsHtml}</div>
+        <div class="actions sans">${feedbackHtml}</div>
+      </div>
+      <div class="card mirror-panel">
+        ${svgMirror()}
+        <p class="mirror-caption">
+          ${state.mirrorState==='idle' ? 'El espejo espera en silencio tu respuesta...' :
+            state.mirrorState==='correct' ? '⭐ El espejo brilla con luz de libertad.' :
+            '🌫️ El espejo se ha empañado de bruma gris.'}
+        </p>
+      </div>
+    </div>`;
+}
+
+function renderOraculo(){
+  mainEl.innerHTML = `
+    <div class="card sans" style="max-width:720px; width:100%;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--amber-soft); border:1px solid var(--amber-border); display:flex; align-items:center; justify-content:center; font-size:18px;">🔮</div>
+        <div>
+          <h3 style="margin:0; font-size:14px;">El Oráculo del Espejo de Ébano</h3>
+          <p style="margin:2px 0 0; font-size:11px; color:var(--text-soft); font-style:italic;">"El revés de las cosas suele guardar la verdad..."</p>
+        </div>
+      </div>
+      <p style="font-size:12px; color:var(--text-soft); margin-bottom:16px;">Elegí una pregunta y escuchá lo que el espejo tiene para responder.</p>
+      <div class="oracle-list">
+        ${ORACLE_QA.map((item,i)=>`
+          <button class="oracle-q-btn" onclick="toggleOracle(${i})">${item.q}</button>
+          ${state.oracleOpen===i ? `<div class="oracle-answer">${item.a}</div>` : ''}
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderTeoria(){
+  mainEl.innerHTML = `
+    <div class="card sans" style="max-width:900px; width:100%;">
+      <h2 style="font-size:18px; color:var(--amber); border-bottom:1px solid var(--border); padding-bottom:12px; margin:0 0 18px;">📖 Conceptos clave — Unidad 2</h2>
+      <div class="theory-grid">
+        <div class="theory-card">
+          <h3>El Pacto de Ficción &amp; Verosimilitud</h3>
+          <p>Cuando leemos, suspendemos nuestra incredulidad. No exigimos que el espejo que une continentes sea real, sino que sea <strong>verosímil</strong>: que tenga apariencia de verdad dentro del relato y sea coherente con las guerras patrias y la trata colonial.</p>
+        </div>
+        <div class="theory-card">
+          <h3>La Historia frente al Relato</h3>
+          <p>La <strong>Historia</strong> es el conjunto de hechos ordenados cronológicamente (1779 a 1818). El <strong>Relato</strong> es la forma particular en que Bodoc decide presentarlos, con saltos temporales y alternancias espaciales.</p>
+        </div>
+        <div class="theory-card">
+          <h3>Personajes actantes (ayudantes)</h3>
+          <p>Para salir de sus conflictos, los personajes requieren fuerzas de apoyo. El maestro desmiente los miedos de María Petra, el niño pelirrojo trae el espejo, y el espejo mismo ayuda al revelarle a Dorel una verdad sobre sí mismo.</p>
+        </div>
+        <div class="theory-card">
+          <h3>Toma de notas (técnicas de estudio)</h3>
+          <p>- <strong>Método Cornell:</strong> ideas clave, notas y resumen.<br>- <strong>Método de Cajas:</strong> cuadrículas por subtema.<br>- <strong>Método de Mapas:</strong> organización jerárquica y visual.<br>- <strong>Listas/Tablas:</strong> relaciona capítulos, marcos y personajes.</p>
+        </div>
+      </div>
+      <div class="theory-quote">"El espejo viaja por el tiempo para demostrarnos que la libertad se teje con las pequeñas decisiones de aquellos que se atreven a sentir compasión por los otros."</div>
+    </div>`;
+}
+
+function render(){
+  renderTabs();
+  scoreLabel.textContent = `${state.score} / 9`;
+  progressLabel.textContent = state.quizFinished ? 'Fin' : `${state.currentIdx+1} de ${QUESTIONS.length}`;
+  if(state.activeTab === 'quiz') renderQuiz();
+  else if(state.activeTab === 'oraculo') renderOraculo();
+  else renderTeoria();
+}
+
+function selectAnswer(key){ if(state.answered) return; state.selectedAnswer = key; render(); }
+function confirmAnswer(){
+  if(!state.selectedAnswer || state.answered) return;
+  state.answered = true;
+  const q = QUESTIONS[state.currentIdx];
+  if(state.selectedAnswer === q.correctKey){ state.score++; state.mirrorState='correct'; }
+  else { state.mirrorState='incorrect'; }
+  render();
+}
+function nextQuestion(){
+  state.answered=false; state.selectedAnswer=null; state.mirrorState='idle'; state.showReflection=false;
+  if(state.currentIdx+1 < QUESTIONS.length) state.currentIdx++;
+  else state.quizFinished = true;
+  render();
+}
+function toggleReflection(){ state.showReflection = !state.showReflection; render(); }
+function toggleOracle(i){ state.oracleOpen = state.oracleOpen===i ? null : i; render(); }
+function restart(){
+  state = {activeTab:'quiz', currentIdx:0, selectedAnswer:null, answered:false, score:0, quizFinished:false, mirrorState:'idle', showReflection:false, oracleOpen:null};
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

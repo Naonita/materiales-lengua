@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personajes y marco espacio-temporal · Yo, el espejo africano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE4CC; --paper-card:#F7F1DF;
+    --ink:#221D16; --ink-soft:#5B5140;
+    --ledger:#29415C; --ledger-light:#4C6483;
+    --redact:#7A2E2E; --gold:#A9822A; --good:#3E6E4E;
+    --line:#C9BB92; --shadow:rgba(34,29,22,.22);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'Source Sans 3', sans-serif; line-height:1.5; font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:34px 18px 60px;}
+
+  .head{text-align:center; margin-bottom:26px;}
+  .eyebrow{
+    font-family:'Courier Prime', monospace; letter-spacing:.12em; text-transform:uppercase; font-size:12px;
+    color:var(--redact); border:1px solid var(--redact); display:inline-block; padding:4px 12px; border-radius:2px; margin-bottom:16px;
+  }
+  h1{font-family:'Spectral', serif; font-weight:700; font-size:clamp(24px,4vw,32px); margin:0 0 10px;}
+  .head p{color:var(--ink-soft); max-width:640px; margin:0 auto; font-size:15.5px;}
+
+  .toolbar{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px;
+    margin:22px 0 26px;
+  }
+  .progress{
+    font-family:'Courier Prime', monospace; font-size:13px; color:var(--ink-soft);
+    background:var(--paper-card); border:1px solid var(--line); border-radius:20px; padding:8px 16px;
+  }
+  .progress b{color:var(--good);}
+  button.dl{
+    font-family:'Source Sans 3', sans-serif; font-weight:600; font-size:14.5px;
+    background:var(--ledger); color:#fff; border:none; border-radius:20px;
+    padding:9px 20px; cursor:pointer; transition:background .15s ease;
+  }
+  button.dl:hover{background:var(--ledger-light);}
+  button.reset{
+    font-family:'Source Sans 3', sans-serif; font-size:13.5px;
+    background:none; color:var(--redact); border:1px solid var(--redact); border-radius:20px;
+    padding:8px 16px; cursor:pointer;
+  }
+  button.reset:hover{background:var(--redact); color:#fff;}
+
+  .table-wrap{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:6px;
+    overflow:hidden; box-shadow:0 14px 30px -20px var(--shadow);
+  }
+  table{border-collapse:collapse; width:100%;}
+  thead th{
+    background:var(--ledger); color:#fff; font-family:'Spectral', serif; font-weight:700; font-size:16px;
+    text-align:left; padding:14px 16px;
+  }
+  thead th:first-child{width:70px; text-align:center;}
+  tbody tr{border-top:1px solid var(--line);}
+  tbody tr.given{background:#fff;}
+  tbody tr.editable{background:var(--paper-card);}
+  tbody td{padding:16px; vertical-align:top; font-size:15px;}
+  td.chap-num{
+    text-align:center; font-family:'Spectral', serif; font-weight:700; font-size:22px; color:var(--gold);
+    vertical-align:middle;
+  }
+  tr.given td.chap-num{color:var(--ledger);}
+  td.given-text{font-size:15px; line-height:1.5;}
+
+  .cell-editable{
+    position:relative;
+  }
+  textarea.fill{
+    width:100%; min-height:64px; resize:vertical;
+    border:1.5px dashed var(--line); border-radius:5px; background:#fff;
+    font-family:'Source Sans 3', sans-serif; font-size:14.5px; color:var(--ink);
+    padding:10px 12px; line-height:1.45;
+  }
+  textarea.fill:focus{outline:none; border-color:var(--gold); border-style:solid;}
+  textarea.fill.filled{border-style:solid; border-color:var(--good);}
+  .status-dot{
+    position:absolute; top:8px; right:10px; width:9px; height:9px; border-radius:50%;
+    background:var(--line);
+  }
+  .status-dot.on{background:var(--good);}
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin-top:18px;
+    font-family:'Courier Prime', monospace; font-size:12px; color:var(--ink-soft);
+  }
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+  .dot.g{background:var(--good);} .dot.l{background:var(--line);}
+
+  .note{
+    max-width:700px; margin:26px auto 0; text-align:center; font-size:13.5px; color:var(--ink-soft);
+    background:var(--paper-card); border:1px dashed var(--line); border-radius:6px; padding:14px 18px;
+  }
+
+  @media (max-width:720px){
+    thead{display:none;}
+    table, tbody, tr, td{display:block; width:100%;}
+    tbody tr{border-top:none; border-bottom:3px solid var(--line); padding-bottom:6px;}
+    td{padding:8px 14px !important;}
+    td.chap-num{text-align:left; font-size:18px; padding-top:14px !important;}
+    td.chap-num::before{content:"Capítulo "; font-family:'Source Sans 3',sans-serif; font-weight:400; font-size:13px; color:var(--ink-soft);}
+    td::before{
+      content:attr(data-label); display:block; font-family:'Courier Prime', monospace;
+      font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--gold); margin-bottom:5px;
+    }
+    td.chap-num::before{content:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <span class="eyebrow">Lengua y Literatura · Yo, el espejo africano · Liliana Bodoc</span>
+    <h1>Mapa de personajes y marco espacio-temporal</h1>
+    <p>Completá vos misma/o las filas 4 a 9 a medida que avanzás con la lectura. Podés escribir, corregir y volver a escribir las veces que quieras.</p>
+  </div>
+
+  <div class="toolbar">
+    <span class="progress"><b id="prog-count">0</b> de 6 capítulos completados</span>
+    <button class="dl" id="btn-download">⬇ Descargar mis respuestas</button>
+    <button class="reset" id="btn-reset">Borrar todo</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Cap.</th><th>Marco espacio-temporal</th><th>Personajes</th></tr>
+      </thead>
+      <tbody id="tbody">
+        <!-- filas 1-3 y 4-9 generadas por JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot g"></span> completado</span>
+    <span><span class="dot l"></span> pendiente</span>
+  </div>
+
+  <div class="note">
+    Este cuadro no guarda tus respuestas automáticamente en un servidor: si cerrás la página perdés lo que escribiste. Usá "Descargar mis respuestas" para guardar una copia antes de salir, o para enviarla al foro.
+  </div>
+</div>
+
+<script>
+(function(){
+  const given = [
+    { n:1, marco:"Entre África y América del Sur. 1779 a 1791, aproximadamente.",
+      pers:"Imaoma y Atima (padres), Atima Imaoma (niña), Raquel y el Sr. Fontezo y Cabrera." },
+    { n:2, marco:"España, Provincia de Valencia. Octubre de 1818.",
+      pers:"Dorel (huérfano), María Petra (propietaria), joven vendedor de espejo. ¿espejo?" },
+    { n:3, marco:"Una hacienda en Mendoza, Argentina. Octubre de 1816.",
+      pers:"Atima Silencio (hija), el amo de la hacienda, el hijo mayor del amo." }
+  ];
+  const chaptersToFill = [4,5,6,7,8,9];
+
+  const tbody = document.getElementById('tbody');
+
+  given.forEach(function(row){
+    const tr = document.createElement('tr');
+    tr.className = 'given';
+    tr.innerHTML =
+      '<td class="chap-num">'+ row.n +'</td>' +
+      '<td class="given-text" data-label="Marco espacio-temporal">'+ row.marco +'</td>' +
+      '<td class="given-text" data-label="Personajes">'+ row.pers +'</td>';
+    tbody.appendChild(tr);
+  });
+
+  chaptersToFill.forEach(function(n){
+    const tr = document.createElement('tr');
+    tr.className = 'editable';
+    tr.innerHTML =
+      '<td class="chap-num">'+ n +'</td>' +
+      '<td data-label="Marco espacio-temporal"><div class="cell-editable">' +
+        '<textarea class="fill" data-chapter="'+ n +'" data-field="marco" placeholder="Completá antes de seguir con la lectura…"></textarea>' +
+        '<span class="status-dot"></span></div></td>' +
+      '<td data-label="Personajes"><div class="cell-editable">' +
+        '<textarea class="fill" data-chapter="'+ n +'" data-field="pers" placeholder="Completá a medida que avanzás en la lectura…"></textarea>' +
+        '<span class="status-dot"></span></div></td>';
+    tbody.appendChild(tr);
+  });
+
+  function updateProgress(){
+    let complete = 0;
+    chaptersToFill.forEach(function(n){
+      const marco = document.querySelector('textarea[data-chapter="'+n+'"][data-field="marco"]').value.trim();
+      const pers = document.querySelector('textarea[data-chapter="'+n+'"][data-field="pers"]').value.trim();
+      if(marco.length > 0 && pers.length > 0) complete++;
+    });
+    document.getElementById('prog-count').textContent = complete;
+  }
+
+  document.querySelectorAll('textarea.fill').forEach(function(ta){
+    ta.addEventListener('input', function(){
+      const dot = ta.parentElement.querySelector('.status-dot');
+      const filled = ta.value.trim().length > 0;
+      ta.classList.toggle('filled', filled);
+      dot.classList.toggle('on', filled);
+      updateProgress();
+    });
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', function(){
+    if(!confirm('¿Borrar todo lo que escribiste en esta tabla?')) return;
+    document.querySelectorAll('textarea.fill').forEach(function(ta){
+      ta.value = '';
+      ta.classList.remove('filled');
+      ta.parentElement.querySelector('.status-dot').classList.remove('on');
+    });
+    updateProgress();
+  });
+
+  document.getElementById('btn-download').addEventListener('click', function(){
+    let lines = [];
+    lines.push('YO, EL ESPEJO AFRICANO — Mapa de personajes y marco espacio-temporal');
+    lines.push('='.repeat(70));
+    lines.push('');
+    given.forEach(function(row){
+      lines.push('Capítulo ' + row.n);
+      lines.push('  Marco espacio-temporal: ' + row.marco);
+      lines.push('  Personajes: ' + row.pers);
+      lines.push('');
+    });
+    chaptersToFill.forEach(function(n){
+      const marco = document.querySelector('textarea[data-chapter="'+n+'"][data-field="marco"]').value.trim() || '(sin completar)';
+      const pers = document.querySelector('textarea[data-chapter="'+n+'"][data-field="pers"]').value.trim() || '(sin completar)';
+      lines.push('Capítulo ' + n);
+      lines.push('  Marco espacio-temporal: ' + marco);
+      lines.push('  Personajes: ' + pers);
+      lines.push('');
+    });
+    const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mis-respuestas-espejo-africano.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>
