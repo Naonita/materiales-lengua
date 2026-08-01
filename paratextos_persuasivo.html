@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lenguaje persuasivo de la contratapa | El espejo africano - Unidad 2</title>
+<style>
+  :root{
+    --navy: #1c3a52;
+    --navy-dark: #142c40;
+    --teal: #b7ece9;
+    --teal-strong: #1f7a78;
+    --teal-strong-hover: #185f5e;
+    --yellow-bg: #fdf3d0;
+    --yellow-border: #ecd98a;
+    --bg: #f6f5f0;
+    --card-bg: #ffffff;
+    --border: #dedad0;
+    --border-soft: #e8e5dc;
+    --text: #1e2b33;
+    --text-soft: #5b6b75;
+    --emerald: #1f7a4d;
+    --emerald-bg: #e2f5e9;
+    --emerald-border: #a9dcbe;
+    --rose: #a3323b;
+    --rose-bg: #fbe7e6;
+    --rose-border: #e6b2ae;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+  *{ box-sizing:border-box; }
+  html{ font-size:18px; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; min-height:100vh; display:flex; flex-direction:column; line-height:1.55; }
+  a, button{ font-family:inherit; }
+  a{ color:var(--teal-strong-hover); }
+  :focus-visible{ outline:3px solid var(--teal-strong); outline-offset:2px; }
+
+  header{ background:var(--navy); padding:22px 20px; }
+  .header-inner{ max-width:960px; margin:0 auto; }
+  .eyebrow{ font-size:0.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); font-weight:700; margin:0 0 6px; }
+  h1{ font-size:1.5rem; margin:0 0 4px; color:#ffffff; }
+  .subtitle{ font-size:0.95rem; color:#d7e2e8; margin:0; }
+
+  main{ flex:1; max-width:960px; width:100%; margin:0 auto; padding:24px 16px 60px; }
+
+  .card{ background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:24px; box-shadow:0 4px 14px rgba(28,58,82,0.08); }
+  .theory-card{ background:var(--yellow-bg); border:1px solid var(--yellow-border); }
+  .theory-card h2{ font-size:1.2rem; color:var(--navy); margin:0 0 12px; }
+  .theory-card p{ font-size:1rem; margin:0 0 14px; }
+  .theory-card p:last-child{ margin-bottom:0; }
+
+  .phase-badge{ display:inline-block; font-size:0.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#ffffff; background:var(--teal-strong); padding:5px 12px; border-radius:999px; margin-bottom:14px; }
+  .phase-title{ font-size:1.25rem; margin:0 0 6px; color:var(--navy); }
+  .phase-desc{ font-size:0.95rem; color:var(--text-soft); margin:0 0 20px; }
+
+  .item{ border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
+  .item-sentence{ font-size:1.06rem; margin:0 0 14px; font-style:italic; }
+  .progress-line{ font-size:0.85rem; color:var(--text-soft); margin-bottom:16px; }
+
+  .opt-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:6px; }
+  .opt-btn{ display:flex; gap:14px; align-items:flex-start; text-align:left; width:100%; padding:14px 16px; border-radius:12px; border:2px solid var(--border); background:var(--card-bg); color:var(--text); font-size:1rem; cursor:pointer; min-height:52px; }
+  .opt-btn:hover:not(:disabled){ border-color:var(--teal-strong); background:#f0f9f8; }
+  .opt-btn .marker{ flex-shrink:0; width:28px; height:28px; border-radius:50%; background:#eef0ec; color:var(--text-soft); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; }
+  .opt-btn.correct{ border-color:var(--emerald-border); background:var(--emerald-bg); }
+  .opt-btn.correct .marker{ background:var(--emerald); color:#fff; }
+  .opt-btn.wrong{ border-color:var(--rose-border); background:var(--rose-bg); }
+  .opt-btn.wrong .marker{ background:var(--rose); color:#fff; }
+  .opt-btn:disabled{ cursor:default; }
+  .opt-btn.dim{ opacity:0.6; }
+
+  .feedback{ border-radius:10px; padding:14px 16px; font-size:0.95rem; line-height:1.6; margin-top:10px; display:flex; gap:10px; align-items:flex-start; }
+  .feedback.ok{ background:var(--emerald-bg); border:1px solid var(--emerald-border); color:#163f2b; }
+  .feedback.bad{ background:var(--rose-bg); border:1px solid var(--rose-border); color:#5c1e23; }
+  .feedback .icon{ font-size:1.2rem; flex-shrink:0; }
+  .feedback strong{ display:block; margin-bottom:2px; }
+
+  .reflect-block{ border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:18px; }
+  .reflect-q{ font-size:1.02rem; margin:0 0 12px; }
+  textarea{ width:100%; min-height:90px; border-radius:10px; border:2px solid var(--border); padding:12px 14px; font-family:inherit; font-size:0.98rem; resize:vertical; }
+  textarea:focus-visible{ outline:3px solid var(--teal-strong); border-color:var(--teal-strong); }
+  .reveal-box{ background:#f0f9f8; border:1px solid var(--teal-strong); border-radius:10px; padding:14px 16px; margin-top:12px; font-size:0.95rem; font-style:italic; color:var(--navy); }
+
+  .btn{ font-size:1rem; font-weight:700; border-radius:10px; padding:12px 22px; border:none; cursor:pointer; min-height:46px; }
+  .btn-primary{ background:var(--teal-strong); color:#fff; }
+  .btn-primary:hover{ background:var(--teal-strong-hover); }
+  .btn-secondary{ background:var(--navy); color:#fff; }
+  .btn-secondary:hover{ background:var(--navy-dark); }
+
+  .links-card ul{ margin:0; padding-left:20px; }
+  .links-card li{ margin-bottom:10px; font-size:0.98rem; }
+
+  footer{ border-top:1px solid var(--border); background:var(--card-bg); padding:14px; text-align:center; font-size:0.85rem; color:var(--text-soft); }
+
+  @media (max-width:600px){ html{ font-size:16.5px; } .card{ padding:18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="eyebrow">Unidad 2 · Tema 1 · El espejo africano</p>
+    <h1>El gancho de la contratapa: lenguaje persuasivo</h1>
+    <p class="subtitle">Cómo unas pocas líneas, antes del primer capítulo, ya empiezan a convencernos de leer el libro.</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="card theory-card">
+    <h2>Antes de empezar</h2>
+    <p>La tapa, la contratapa y el título forman parte de lo que Gérard Genette llamó <strong>paratexto</strong>: todo lo que rodea al texto y orienta al lector antes de la lectura. La contratapa no es un resumen neutro: usa <strong>lenguaje persuasivo</strong>, elegido a propósito para generar intriga y convencer a quien todavía duda si llevarse el libro.</p>
+    <p>Algunas técnicas frecuentes: <strong>enumerar personajes muy distintos entre sí</strong> en una misma oración (para sugerir que sus destinos, inesperadamente, se cruzan); usar una <strong>paradoja temporal</strong> (algo que "empezó hace siglos" pero "aún no ha terminado", como si el pasado siguiera vivo hoy); elegir <strong>verbos y adjetivos connotativos</strong> en vez de neutros ("enlazar" en vez de "unir", "arduas luchas" en vez de "luchas difíciles"); y, a veces, una <strong>pregunta retórica</strong> que interpela directamente al lector.</p>
+    <p>La contratapa real de <em>El espejo africano</em> ya usa varias de estas técnicas: por ejemplo, describe una <em>"historia que empezó hace dos siglos, pero aún no ha terminado"</em>, una paradoja temporal que sugiere que el tema (la esclavitud, la lucha por la libertad) todavía nos interpela hoy.</p>
+  </section>
+
+  <section class="card" id="fase1"></section>
+  <section class="card" id="fase2"></section>
+  <section class="card" id="fase3"></section>
+
+  <section class="card links-card">
+    <h2 class="phase-title" style="margin-bottom:12px;">Para profundizar (opcional)</h2>
+    <ul>
+      <li><a href="https://es.wikipedia.org/wiki/Paratextualidad_(teor%C3%ADa_literaria)" target="_blank" rel="noopener">Paratextualidad (teoría literaria) — concepto de Gérard Genette</a></li>
+      <li><a href="https://www.infolibre.es/cultura/paratexto_1_1144780.html" target="_blank" rel="noopener">"¿Para qué? Paratexto" — sobre la función persuasiva de tapas y contratapas</a></li>
+      <li><a href="https://centrodeescrituravirtual.wordpress.com/wp-content/uploads/2010/03/paratexto_estelakallay.pdf" target="_blank" rel="noopener">El paratexto — guía académica breve (Centro Virtual de Escritura)</a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>Los ejemplos de contratapas de esta actividad son originales, inventados para la práctica; solo una frase breve (marcada en la introducción) pertenece a la contratapa real de El espejo africano, ya incluida en el material de la unidad.</footer>
+
+<script>
+/* ---------- FASE 1: ADQUIRIR ---------- */
+const RECOGNIZE_ITEMS = [
+  { sentence:'"Un viejo marinero, una joven espía, un rey que nunca existió: sus caminos se cruzan en una sola noche."',
+    options:['Enumeración de personajes contrastantes','Paradoja temporal','Pregunta retórica'],
+    correct:'Enumeración de personajes contrastantes',
+    explain:'Nombrar en una misma oración a personajes tan distintos entre sí sugiere que sus destinos, inesperadamente, van a cruzarse: genera intriga sobre cómo es posible.' },
+  { sentence:'"Una guerra que terminó hace un siglo, pero que todavía decide quién puede hablar y quién debe callar."',
+    options:['Enumeración de personajes contrastantes','Paradoja temporal','Pregunta retórica'],
+    correct:'Paradoja temporal',
+    explain:'Contrasta un hecho ya terminado ("hace un siglo") con una consecuencia que sigue vigente ("todavía decide"): sugiere que el tema histórico todavía nos interpela hoy.' },
+  { sentence:'"¿Qué harías si el secreto de tu familia pudiera destruir a la persona que más amás?"',
+    options:['Enumeración de personajes contrastantes','Paradoja temporal','Pregunta retórica'],
+    correct:'Pregunta retórica',
+    explain:'Interpela directamente al lector, invitándolo a imaginarse dentro del conflicto antes de haber leído una sola página.' },
+  { sentence:'"Una historia que empezó hace dos siglos, pero aún no ha terminado."',
+    options:['Enumeración de personajes contrastantes','Paradoja temporal','Pregunta retórica'],
+    correct:'Paradoja temporal',
+    explain:'Es la frase real de la contratapa de El espejo africano: usa la misma paradoja temporal para sugerir que la lucha por la libertad sigue vigente.' }
+];
+
+let r1_idx = 0, r1_score = 0, r1_answered = false;
+
+function renderFase1(){
+  const el = document.getElementById('fase1');
+  if(r1_idx >= RECOGNIZE_ITEMS.length){
+    el.innerHTML = `
+      <span class="phase-badge">Fase 1 · Adquirir</span>
+      <h2 class="phase-title">Reconocé la técnica persuasiva</h2>
+      <p class="progress-line">Completado: ${r1_score} / ${RECOGNIZE_ITEMS.length} correctas.</p>
+      <button class="btn btn-secondary" onclick="restartFase1()">Repetir esta fase</button>
+    `;
+    return;
+  }
+  const it = RECOGNIZE_ITEMS[r1_idx];
+  el.innerHTML = `
+    <span class="phase-badge">Fase 1 · Adquirir</span>
+    <h2 class="phase-title">Reconocé la técnica persuasiva</h2>
+    <p class="phase-desc">Leé la frase de contratapa (inventada, salvo la última) y elegí qué técnica persuasiva usa.</p>
+    <p class="progress-line">Frase ${r1_idx+1} de ${RECOGNIZE_ITEMS.length} · Correctas: ${r1_score}</p>
+    <div class="item">
+      <p class="item-sentence">${it.sentence}</p>
+      <div class="opt-list" id="r1choices">
+        ${it.options.map((o,i)=>`<button class="opt-btn" data-v="${o}" onclick="answerFase1('${o}')"><span class="marker">${i+1}</span><span>${o}</span></button>`).join('')}
+      </div>
+      <div id="r1feedback"></div>
+    </div>
+  `;
+}
+
+function answerFase1(choice){
+  if(r1_answered) return;
+  r1_answered = true;
+  const it = RECOGNIZE_ITEMS[r1_idx];
+  const correct = choice === it.correct;
+  if(correct) r1_score++;
+  document.querySelectorAll('#r1choices .opt-btn').forEach(b=>{
+    b.disabled = true;
+    const v = b.getAttribute('data-v');
+    if(v === it.correct) b.classList.add('correct');
+    else if(v === choice) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  document.getElementById('r1feedback').innerHTML = `
+    <div class="feedback ${correct?'ok':'bad'}">
+      <span class="icon">${correct?'✓':'✕'}</span>
+      <div><strong>${correct?'Correcto.':'No es así.'}</strong> ${it.explain}</div>
+    </div>
+    <div style="margin-top:12px; text-align:right;">
+      <button class="btn btn-primary" onclick="nextFase1()">${r1_idx+1===RECOGNIZE_ITEMS.length?'Ver resultado de la fase':'Siguiente frase'}</button>
+    </div>
+  `;
+}
+function nextFase1(){ r1_idx++; r1_answered=false; renderFase1(); }
+function restartFase1(){ r1_idx=0; r1_score=0; r1_answered=false; renderFase1(); }
+
+/* ---------- FASE 2: FIJAR ---------- */
+const CLOZE_ITEMS = [
+  { sentence:'"Esta es la historia de un espejo que ______ el destino de distintas personas."',
+    options:[
+      {text:'conecta', correct:false, note:'Es correcto pero neutro: no sugiere la idea de un lazo difícil de romper.'},
+      {text:'enlaza', correct:true, note:''},
+      {text:'toca', correct:false, note:'Es demasiado vago: no transmite la idea de un destino compartido.'}
+    ], explain:'"Enlaza" es la palabra real elegida en la contratapa: es más connotativa que "conecta" y sugiere un lazo fuerte y duradero entre los personajes.' },
+  { sentence:'"Y cuenta las ______ luchas que estos hombres y mujeres afrontaron para obtener la libertad."',
+    options:[
+      {text:'difíciles', correct:false, note:'Es correcto pero más neutro y menos intenso que la palabra elegida realmente.'},
+      {text:'arduas', correct:true, note:''},
+      {text:'simples', correct:false, note:'Contradice completamente el sentido buscado: minimiza el esfuerzo en vez de destacarlo.'}
+    ], explain:'"Arduas" es la palabra real de la contratapa: es más intensa y connotativa que "difíciles", y refuerza la magnitud del sacrificio.' },
+  { sentence:'"Una historia que empezó hace dos siglos, pero aún no ______."',
+    options:[
+      {text:'pasó', correct:false, note:'No tiene sentido con la paradoja temporal que se busca construir.'},
+      {text:'ha terminado', correct:true, note:''},
+      {text:'terminará', correct:false, note:'Cambia el sentido: sugeriría que el final está en el futuro, no que el tema sigue vigente hoy.'}
+    ], explain:'"Ha terminado" (pretérito perfecto compuesto) conecta el pasado con el presente: sugiere que la lucha por la libertad todavía nos interpela hoy.' },
+  { sentence:'"En cada página, el lector ______ un mundo que creía conocido."',
+    options:[
+      {text:'ve', correct:false, note:'Es neutro: no sugiere ninguna sorpresa o revelación.'},
+      {text:'redescubre', correct:true, note:''},
+      {text:'visita', correct:false, note:'Sugiere algo pasajero, sin la idea de sorpresa o revelación que buscamos transmitir.'}
+    ], explain:'"Redescubre" sugiere una revelación: el lector creía conocer ese mundo, pero la lectura le muestra algo nuevo. Es más persuasivo que un verbo neutro como "ve".' }
+];
+
+let c_idx = 0, c_score = 0, c_answered = false;
+
+function renderFase2(){
+  const el = document.getElementById('fase2');
+  if(c_idx >= CLOZE_ITEMS.length){
+    el.innerHTML = `
+      <span class="phase-badge">Fase 2 · Fijar</span>
+      <h2 class="phase-title">Elegí la palabra más persuasiva</h2>
+      <p class="progress-line">Completado: ${c_score} / ${CLOZE_ITEMS.length} correctas.</p>
+      <button class="btn btn-secondary" onclick="restartFase2()">Repetir esta fase</button>
+    `;
+    return;
+  }
+  const it = CLOZE_ITEMS[c_idx];
+  el.innerHTML = `
+    <span class="phase-badge">Fase 2 · Fijar</span>
+    <h2 class="phase-title">Elegí la palabra más persuasiva</h2>
+    <p class="phase-desc">De las tres opciones, elegí la que mejor construye el efecto de intriga o de gancho para el lector.</p>
+    <p class="progress-line">Ítem ${c_idx+1} de ${CLOZE_ITEMS.length} · Correctas: ${c_score}</p>
+    <div class="item">
+      <p class="item-sentence">${it.sentence}</p>
+      <div class="opt-list" id="c2choices">
+        ${it.options.map((o,i)=>`<button class="opt-btn" data-i="${i}" onclick="answerFase2(${i})"><span class="marker">${i+1}</span><span>${o.text}</span></button>`).join('')}
+      </div>
+      <div id="c2feedback"></div>
+    </div>
+  `;
+}
+
+function answerFase2(i){
+  if(c_answered) return;
+  c_answered = true;
+  const it = CLOZE_ITEMS[c_idx];
+  const chosen = it.options[i];
+  if(chosen.correct) c_score++;
+  document.querySelectorAll('#c2choices .opt-btn').forEach((b,idx)=>{
+    b.disabled = true;
+    if(it.options[idx].correct) b.classList.add('correct');
+    else if(idx===i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  const msg = chosen.correct ? it.explain : (chosen.note + ' ' + it.explain);
+  document.getElementById('c2feedback').innerHTML = `
+    <div class="feedback ${chosen.correct?'ok':'bad'}">
+      <span class="icon">${chosen.correct?'✓':'✕'}</span>
+      <div><strong>${chosen.correct?'Correcto.':'No es la mejor opción.'}</strong> ${msg}</div>
+    </div>
+    <div style="margin-top:12px; text-align:right;">
+      <button class="btn btn-primary" onclick="nextFase2()">${c_idx+1===CLOZE_ITEMS.length?'Ver resultado de la fase':'Siguiente frase'}</button>
+    </div>
+  `;
+}
+function nextFase2(){ c_idx++; c_answered=false; renderFase2(); }
+function restartFase2(){ c_idx=0; c_score=0; c_answered=false; renderFase2(); }
+
+/* ---------- FASE 3: PROFUNDIZAR ---------- */
+function renderFase3(){
+  const el = document.getElementById('fase3');
+  el.innerHTML = `
+    <span class="phase-badge">Fase 3 · Profundizar</span>
+    <h2 class="phase-title">Analizá y escribí</h2>
+    <p class="phase-desc">No hay una única respuesta correcta: son preguntas para pensar más allá del ejercicio anterior.</p>
+
+    <div class="reflect-block">
+      <p class="reflect-q">1. Releé la contratapa real de El espejo africano, en el material de la unidad. ¿Por qué te parece que la autora nombra en la misma oración a "una esclava africana, el general San Martín, un temeroso huérfano español", en vez de mencionar solo a la protagonista principal?</p>
+      <textarea aria-label="Respuesta a la pregunta 1" placeholder="Escribí tu reflexión acá..."></textarea>
+      <button class="btn btn-secondary" style="margin-top:10px;" onclick="toggleReveal('reveal1')">Ver una posible reflexión</button>
+      <div id="reveal1" class="reveal-box" style="display:none;">Mezclar en la misma oración a una figura histórica real (San Martín) con personajes anónimos o ficticios (la esclava, el huérfano) genera dos efectos: por un lado, da verosimilitud histórica a la novela; por otro, despierta curiosidad sobre cómo destinos tan distintos —una figura de los libros de historia y gente común— pueden llegar a cruzarse.</div>
+    </div>
+
+    <div class="reflect-block">
+      <p class="reflect-q">2. Escribí tu propia "contratapa" de 3 líneas para uno de los capítulos que ya leíste (1, 2 o 3), usando al menos una de las técnicas que vimos: enumeración de personajes contrastantes, paradoja temporal, pregunta retórica, o un verbo bien connotativo (como "enlazar").</p>
+      <textarea aria-label="Respuesta a la pregunta 2" placeholder="Escribí tu contratapa acá..."></textarea>
+      <button class="btn btn-secondary" style="margin-top:10px;" onclick="toggleReveal('reveal2')">Ver un ejemplo posible</button>
+      <div id="reveal2" class="reveal-box" style="display:none;">Ejemplo para el capítulo 2: "Un huérfano encerrado, una anciana que teme al mundo, un espejo que llega desde el otro lado del océano. En una tienda de antigüedades de Valencia, el miedo está a punto de perder su primera batalla." (enumeración de personajes contrastantes + verbo connotativo)</div>
+    </div>
+  `;
+}
+function toggleReveal(id){
+  const box = document.getElementById(id);
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+renderFase1();
+renderFase2();
+renderFase3();
+</script>
+</body>
+</html>

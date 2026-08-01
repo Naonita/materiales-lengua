@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espacios narrativos y mercantilización | El espejo africano - Unidad 2</title>
+<style>
+  :root{
+    --navy: #1c3a52; --navy-dark: #142c40; --teal: #b7ece9; --teal-strong: #1f7a78; --teal-strong-hover: #185f5e;
+    --yellow-bg: #fdf3d0; --yellow-border: #ecd98a; --bg: #f6f5f0; --card-bg: #ffffff;
+    --border: #dedad0; --text: #1e2b33; --text-soft: #5b6b75;
+    --emerald: #1f7a4d; --emerald-bg: #e2f5e9; --emerald-border: #a9dcbe;
+    --rose: #a3323b; --rose-bg: #fbe7e6; --rose-border: #e6b2ae;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+  *{ box-sizing:border-box; }
+  html{ font-size:18px; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; min-height:100vh; display:flex; flex-direction:column; line-height:1.55; }
+  a, button{ font-family:inherit; }
+  :focus-visible{ outline:3px solid var(--teal-strong); outline-offset:2px; }
+  header{ background:var(--navy); padding:22px 20px; }
+  .header-inner{ max-width:960px; margin:0 auto; }
+  .eyebrow{ font-size:0.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); font-weight:700; margin:0 0 6px; }
+  h1{ font-size:1.5rem; margin:0 0 4px; color:#fff; }
+  .subtitle{ font-size:0.95rem; color:#d7e2e8; margin:0; }
+  main{ flex:1; max-width:960px; width:100%; margin:0 auto; padding:24px 16px 60px; }
+  .card{ background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:24px; box-shadow:0 4px 14px rgba(28,58,82,0.08); }
+  .theory-card{ background:var(--yellow-bg); border:1px solid var(--yellow-border); }
+  .theory-card h2{ font-size:1.2rem; color:var(--navy); margin:0 0 12px; }
+  .theory-card p{ font-size:1rem; margin:0 0 10px; }
+  .theory-card p:last-child{ margin-bottom:0; }
+
+  .section-badge{ display:inline-block; font-size:0.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#ffffff; background:var(--teal-strong); padding:5px 12px; border-radius:999px; margin-bottom:14px; }
+
+  .progress-line{ font-size:0.85rem; color:var(--text-soft); margin-bottom:16px; display:flex; justify-content:space-between; }
+  .action-list{ background:#f0f9f8; border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:16px; }
+  .action-list ul{ margin:0; padding-left:20px; }
+  .action-list li{ margin-bottom:6px; font-size:0.98rem; }
+  .item-sentence{ font-size:1.08rem; margin:0 0 16px; }
+
+  .opt-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:6px; }
+  .opt-btn{ display:flex; gap:14px; align-items:center; text-align:left; width:100%; padding:14px 16px; border-radius:12px; border:2px solid var(--border); background:var(--card-bg); color:var(--text); font-size:1rem; cursor:pointer; min-height:52px; }
+  .opt-btn:hover:not(:disabled){ border-color:var(--teal-strong); background:#f0f9f8; }
+  .opt-btn .marker{ flex-shrink:0; width:32px; height:32px; border-radius:50%; background:#eef0ec; color:var(--text-soft); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; }
+  .opt-btn.correct{ border-color:var(--emerald-border); background:var(--emerald-bg); }
+  .opt-btn.correct .marker{ background:var(--emerald); color:#fff; }
+  .opt-btn.wrong{ border-color:var(--rose-border); background:var(--rose-bg); }
+  .opt-btn.wrong .marker{ background:var(--rose); color:#fff; }
+  .opt-btn:disabled{ cursor:default; }
+  .opt-btn.dim{ opacity:0.6; }
+
+  .match-row{ display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .match-label{ flex:1; min-width:220px; font-size:0.98rem; background:#f0f9f8; border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  select{ flex:1; min-width:200px; font-size:1rem; padding:12px 14px; border-radius:10px; border:2px solid var(--border); font-family:inherit; background:#fff; color:var(--text); }
+  select:focus-visible{ outline:3px solid var(--teal-strong); border-color:var(--teal-strong); }
+
+  .feedback{ border-radius:10px; padding:14px 16px; font-size:0.95rem; line-height:1.6; margin-top:14px; display:flex; gap:10px; align-items:flex-start; }
+  .feedback.ok{ background:var(--emerald-bg); border:1px solid var(--emerald-border); color:#163f2b; }
+  .feedback.bad{ background:var(--rose-bg); border:1px solid var(--rose-border); color:#5c1e23; }
+  .feedback .icon{ font-size:1.2rem; flex-shrink:0; }
+  .feedback strong{ display:block; margin-bottom:2px; }
+
+  .btn{ font-size:1rem; font-weight:700; border-radius:10px; padding:13px 24px; border:none; cursor:pointer; min-height:48px; }
+  .btn-primary{ background:var(--teal-strong); color:#fff; }
+  .btn-primary:hover:not(:disabled){ background:var(--teal-strong-hover); }
+  .btn-primary:disabled{ background:#c7cdd0; color:#7d8489; cursor:not-allowed; }
+  .btn-secondary{ background:var(--navy); color:#fff; }
+  .btn-secondary:hover{ background:var(--navy-dark); }
+  .row-end{ display:flex; justify-content:flex-end; margin-top:14px; }
+
+  .route-map{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:20px 0; flex-wrap:wrap; }
+  .route-stop{ flex:1; min-width:130px; text-align:center; }
+  .route-stop .icon-wrap{ width:70px; height:70px; margin:0 auto 8px; border-radius:50%; background:#f0f9f8; border:2px solid var(--teal-strong); display:flex; align-items:center; justify-content:center; }
+  .route-stop p{ margin:0; font-size:0.85rem; font-weight:700; color:var(--navy); }
+  .route-arrow{ font-size:1.5rem; color:var(--teal-strong); flex-shrink:0; }
+
+  .result-card{ text-align:center; }
+  .result-score{ font-size:2.4rem; font-weight:800; color:var(--teal-strong-hover); font-family:monospace; }
+
+  footer{ border-top:1px solid var(--border); background:var(--card-bg); padding:14px; text-align:center; font-size:0.85rem; color:var(--text-soft); }
+  @media (max-width:600px){ html{ font-size:16.5px; } .card{ padding:18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="eyebrow">Unidad 2 · Temas 2 y 3 · El espejo africano</p>
+    <h1>Tres espacios, una mercancía</h1>
+    <p class="subtitle">Dónde ocurre cada suceso del capítulo 1, y cómo el lenguaje revela el proceso de convertir personas en mercancía.</p>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="quizArea"></section>
+</main>
+
+<footer>Las listas de acciones y las descripciones de escenas de esta actividad están resumidas en palabras propias del equipo docente y no reproducen pasajes extensos de la novela.</footer>
+
+<script>
+const ICONS = {
+  africa: '<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="#fdf3d0"/><path d="M30 12 L38 40 L22 40 Z" fill="#8a6a3a"/><rect x="27" y="38" width="6" height="14" fill="#6b4a26"/><circle cx="20" cy="18" r="4" fill="#e0ac4f"/></svg>',
+  casa: '<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="#e6f2f1"/><rect x="16" y="28" width="28" height="18" fill="#3a6b8a"/><path d="M14 28 L30 14 L46 28 Z" fill="#1c3a52"/><rect x="26" y="34" width="8" height="12" fill="#f0ead9"/></svg>',
+  mercado: '<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="#fbe7e6"/><path d="M16 24 L44 24 L40 46 L20 46 Z" fill="#a3323b" opacity="0.15"/><rect x="18" y="24" width="24" height="4" fill="#a3323b"/><rect x="21" y="28" width="4" height="16" fill="#8a4a3a"/><rect x="35" y="28" width="4" height="16" fill="#8a4a3a"/></svg>'
+};
+
+const ITEMS = [
+  { type:'single', space:'africa', title:'El hogar en África',
+    actions:['Celebración del matrimonio de Imaoma y Atima.','Imaoma le regala a su esposa un pequeño espejo enmarcado en ébano.','Atima (la madre) y Atima Imaoma (la niña) juntaban frutos y cantaban.','La niña lleva el nombre de sus padres.','Atima Imaoma es capturada por cazadores de hombres.','Su madre le cuelga el espejo al cuello antes de despedirse.'],
+    q:'¿En qué espacio narrativo se desarrollan estas acciones?',
+    options:['La casa de los Fontenzo y Cabrera','El hogar en África','El mercado de esclavos'],
+    correct:1,
+    explain:'Todo ocurre en el mismo lugar: África, donde Imaoma, Atima y su hija vivían en libertad, hasta que la niña es capturada.' },
+  { type:'single', space:'casa', title:'La casa de los Fontenzo y Cabrera',
+    actions:['Raquel y Silencio crecieron juntas.','Silencio no lograba recordar el nombre que tenía en su tierra.','Raquel se propone enseñarle a la niña las letras y los números.','La familia cae en la ruina económica y decide vender a Silencio.','El espejo le revela a la joven, al cumplir 12 años, su verdadero nombre.','Atima Imaoma parte hacia Mendoza, y Raquel le promete ir a buscarla.'],
+    q:'¿En qué espacio narrativo se desarrollan estas acciones?',
+    options:['El mercado de esclavos','La casa de los Fontenzo y Cabrera','El hogar en África'],
+    correct:1,
+    explain:'Estas acciones transcurren luego de que Atima es comprada y llevada a la casa de la familia Fontenzo y Cabrera, donde crece junto a Raquel.' },
+  { type:'single', space:'mercado', title:'El mercado de esclavos',
+    actions:['La niña llega a una ciudad rioplatense donde "la gente compraba gente".','Se destaca entre otros niños por su fortaleza.','La señora Fontenzo y Cabrera la ve y dice que puede ser la doncella de Raquel.','Al señor Fontenzo le llama la atención la bolsita que la niña lleva en el cuello.','Imaoma es comprada por los esposos Fontenzo y Cabrera.','La niña recibe el nombre de Silencio, porque no hablaba.'],
+    q:'¿A qué espacio narrativo pertenecen estas acciones?',
+    options:['El hogar en África','La casa de los Fontenzo y Cabrera','El mercado de esclavos'],
+    correct:2,
+    explain:'Todo transcurre en Buenos Aires, en un mercado de esclavos, donde Atima es exhibida, comercializada y comprada por la familia Fontenzo y Cabrera.' },
+  { type:'info',
+    render:function(){
+      return `
+        <span class="section-badge">Recorrido</span>
+        <h2 style="font-size:1.2rem; color:var(--navy); margin:0 0 6px;">El mapa de un desarraigo</h2>
+        <p style="color:var(--text-soft); margin:0 0 10px;">En apenas un capítulo, la niña recorre tres espacios que marcan, cada uno, una pérdida distinta.</p>
+        <div class="route-map">
+          <div class="route-stop"><div class="icon-wrap">${ICONS.africa}</div><p>Hogar en África<br><span style="font-weight:400; color:var(--text-soft);">libertad y familia</span></p></div>
+          <div class="route-arrow">→</div>
+          <div class="route-stop"><div class="icon-wrap">${ICONS.mercado}</div><p>Mercado de esclavos<br><span style="font-weight:400; color:var(--text-soft);">mercancía, no persona</span></p></div>
+          <div class="route-arrow">→</div>
+          <div class="route-stop"><div class="icon-wrap">${ICONS.casa}</div><p>Casa Fontenzo y Cabrera<br><span style="font-weight:400; color:var(--text-soft);">nuevo nombre, nueva vida forzada</span></p></div>
+        </div>
+        <p style="font-size:0.95rem; margin-top:12px;">Ahora vamos a mirar de cerca <strong>cómo el lenguaje</strong> —los avisos, las palabras del señor Fontenzo— construye ese proceso de convertir a una persona en mercancía: la <strong>mercantilización</strong>.</p>
+      `;
+    } },
+  { type:'tf',
+    context:'La mercantilización es el proceso mediante el cual un bien o servicio se transforma en una mercancía que puede comprarse, venderse e intercambiarse en un mercado.',
+    q:'Las expresiones de los avisos de época "se vende africano", "la persona que quiera comprarlo" y "de abundante leche", ¿demuestran el proceso de mercantilización de las personas?',
+    correct:true,
+    explain:'La mercantilización se revela en esas expresiones: a través de ellas se efectúa la deshumanización, donde el individuo pierde su identidad personal para ser reducido a una mercancía valorada solo por su utilidad.' },
+  { type:'match',
+    q:'Relacioná cada escena con la consecuencia de la mercantilización que representa:',
+    pairs:[
+      {left:'El señor Fontenzo compara, con orgullo, la valentía de la niña con la de sus perros de caza.', right:'Animalización'},
+      {left:'El señor Fontenzo le explica a su hija que los esclavizados no tienen alma ni las mismas capacidades que las personas blancas.', right:'Deshumanización'},
+      {left:'El señor Fontenzo imagina el escándalo entre sus amigos si supieran que en su casa una esclava aprende a leer y escribir.', right:'Pérdida de los derechos'},
+      {left:'La señora sugiere que la niña, de la misma edad que Raquel, sea su doncella personal.', right:'Trabajo infantil'}
+    ],
+    explain:'Comparar a la niña con un animal de caza (animalización), negarle un alma (deshumanización), prohibirle la lectura (pérdida de derechos) y convertirla en mano de obra infantil son distintas caras de un mismo proceso: dejar de verla como persona.' },
+  { type:'match',
+    q:'Relacioná estas otras cuatro escenas con la consecuencia de la mercantilización que representan:',
+    pairs:[
+      {left:'Al comprarla, le asignan un nuevo nombre para poder registrarla como propiedad.', right:'Pérdida de la identidad'},
+      {left:'Los cazadores de personas separan a la niña de su madre, que pelea por defenderla hasta el final.', right:'Destrucción de los lazos afectivos'},
+      {left:'Cuando la familia cae en la ruina económica, deciden vender a Silencio junto con otras pertenencias de valor.', right:'Cosificación'},
+      {left:'Silencio pierde el recuerdo de su lengua materna y de su verdadero nombre; solo el espejo la conecta con su origen.', right:'Desarraigo cultural'}
+    ],
+    explain:'Un nuevo nombre para un registro de propiedad (pérdida de identidad), una familia rota por "orden de compra" (destrucción de lazos), una persona vendida junto a otros bienes (cosificación) y una lengua materna que se pierde (desarraigo cultural): la mercantilización deja marcas distintas, pero todas devastadoras.' }
+];
+
+let idx=0, score=0, scored=0, answered=false, finished=false;
+let selectedMulti=new Set();
+const quizArea = document.getElementById('quizArea');
+
+function render(){
+  if(finished){
+    const pct = scored>0 ? score/scored : 1;
+    quizArea.innerHTML = `
+      <div class="result-card">
+        <p style="font-size:2.4rem; margin:0 0 6px;">${pct===1?'✨':pct>=0.6?'🙂':'📘'}</p>
+        <p class="result-score">${score} / ${scored}</p>
+        <p style="margin:14px 0 22px;">${pct===1?'¡Excelente! Ubicaste bien los espacios y reconociste cómo el lenguaje construye la mercantilización.':'Repasá los ítems que fallaste: prestá atención a las pistas de lugar y a las palabras que usan los personajes.'}</p>
+        <button class="btn btn-primary" onclick="restart()">Volver a intentar</button>
+      </div>`;
+    return;
+  }
+
+  const it = ITEMS[idx];
+
+  if(it.type === 'info'){
+    quizArea.innerHTML = `${it.render()}<div class="row-end"><button class="btn btn-primary" onclick="next()">Continuar</button></div>`;
+    return;
+  }
+
+  let contextHtml = it.context ? `<div style="background:#f0f9f8; border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; color:var(--text-soft);">${it.context}</div>` : '';
+  let actionsHtml = '';
+  if(it.actions){
+    actionsHtml = `<div class="action-list"><strong style="color:var(--navy); font-size:0.85rem; text-transform:uppercase; letter-spacing:.04em;">${it.title}</strong>
+      <ul>${it.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div>`;
+  }
+
+  let bodyHtml = '';
+  if(it.type === 'single'){
+    bodyHtml = `<div class="opt-list" id="optList">
+      ${it.options.map((o,i)=>`<button class="opt-btn" data-i="${i}" onclick="selectSingle(${i})"><span class="marker">${i+1}</span><span>${o}</span></button>`).join('')}
+    </div>`;
+  } else if(it.type === 'tf'){
+    bodyHtml = `<div class="opt-list" id="optList">
+      <button class="opt-btn" data-v="true" onclick="selectTF(true)"><span class="marker">V</span><span>Verdadero</span></button>
+      <button class="opt-btn" data-v="false" onclick="selectTF(false)"><span class="marker">F</span><span>Falso</span></button>
+    </div>`;
+  } else if(it.type === 'match'){
+    bodyHtml = `<div id="matchArea">
+      ${it.pairs.map((p,i)=>`
+        <div class="match-row">
+          <div class="match-label">${p.left}</div>
+          <select id="match-${i}" onchange="onMatchChange()">
+            <option value="">Elegí una consecuencia...</option>
+            ${it.pairs.map(opt=>`<option value="${opt.right}">${opt.right}</option>`).join('')}
+          </select>
+        </div>`).join('')}
+    </div>
+    <div class="row-end"><button class="btn btn-primary" id="confirmMatch" onclick="confirmMatch()" disabled>Confirmar relaciones</button></div>`;
+  }
+
+  quizArea.innerHTML = `
+    <div class="progress-line"><span>Ítem ${idx+1} de ${ITEMS.length}</span><span>Puntaje: ${score} / ${scored}</span></div>
+    ${contextHtml}
+    ${actionsHtml}
+    <p class="item-sentence">${it.q}</p>
+    ${bodyHtml}
+    <div id="feedbackArea"></div>
+  `;
+}
+
+function lockOptions(){ document.querySelectorAll('#optList .opt-btn').forEach(b=> b.disabled = true); }
+
+function showFeedback(correct, explainText){
+  answered = true; scored++;
+  if(correct) score++;
+  document.getElementById('feedbackArea').innerHTML = `
+    <div class="feedback ${correct?'ok':'bad'}">
+      <span class="icon">${correct?'✓':'✕'}</span>
+      <div><strong>${correct?'Correcto.':'No es así.'}</strong> ${explainText}</div>
+    </div>
+    <div class="row-end">
+      <button class="btn btn-secondary" onclick="next()">${idx+1===ITEMS.length?'Ver resultado final':'Siguiente'}</button>
+    </div>`;
+}
+
+function selectSingle(i){
+  if(answered) return;
+  const it = ITEMS[idx];
+  const correct = i === it.correct;
+  document.querySelectorAll('#optList .opt-btn').forEach((b,bi)=>{
+    if(bi === it.correct) b.classList.add('correct');
+    else if(bi === i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  lockOptions();
+  showFeedback(correct, it.explain);
+}
+
+function selectTF(v){
+  if(answered) return;
+  const it = ITEMS[idx];
+  const correct = v === it.correct;
+  document.querySelectorAll('#optList .opt-btn').forEach(b=>{
+    const bv = b.getAttribute('data-v') === 'true';
+    if(bv === it.correct) b.classList.add('correct');
+    else if(bv === v) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  lockOptions();
+  showFeedback(correct, it.explain);
+}
+
+function onMatchChange(){
+  const it = ITEMS[idx];
+  let allFilled = true;
+  it.pairs.forEach((p,i)=>{ if(!document.getElementById(`match-${i}`).value) allFilled = false; });
+  document.getElementById('confirmMatch').disabled = !allFilled;
+}
+
+function confirmMatch(){
+  if(answered) return;
+  const it = ITEMS[idx];
+  let allCorrect = true;
+  it.pairs.forEach((p,i)=>{
+    const sel = document.getElementById(`match-${i}`);
+    sel.disabled = true;
+    if(sel.value === p.right){ sel.style.borderColor='var(--emerald)'; sel.style.background='var(--emerald-bg)'; }
+    else { allCorrect = false; sel.style.borderColor='var(--rose)'; sel.style.background='var(--rose-bg)'; }
+  });
+  document.getElementById('confirmMatch').disabled = true;
+  showFeedback(allCorrect, it.explain);
+}
+
+function next(){
+  idx++; answered=false; selectedMulti=new Set();
+  if(idx >= ITEMS.length){ finished = true; }
+  render();
+}
+function restart(){
+  idx=0; score=0; scored=0; answered=false; finished=false; selectedMulti=new Set();
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

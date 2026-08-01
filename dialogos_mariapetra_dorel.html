@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El poder de las palabras | María Petra y Dorel - Unidad 2</title>
+<style>
+  :root{
+    --navy: #1c3a52; --navy-dark: #142c40; --teal: #b7ece9; --teal-strong: #1f7a78; --teal-strong-hover: #185f5e;
+    --yellow-bg: #fdf3d0; --yellow-border: #ecd98a; --bg: #f6f5f0; --card-bg: #ffffff;
+    --border: #dedad0; --text: #1e2b33; --text-soft: #5b6b75;
+    --emerald: #1f7a4d; --emerald-bg: #e2f5e9; --emerald-border: #a9dcbe;
+    --rose: #a3323b; --rose-bg: #fbe7e6; --rose-border: #e6b2ae;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+  *{ box-sizing:border-box; }
+  html{ font-size:18px; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; min-height:100vh; display:flex; flex-direction:column; line-height:1.55; }
+  a, button{ font-family:inherit; }
+  :focus-visible{ outline:3px solid var(--teal-strong); outline-offset:2px; }
+  header{ background:var(--navy); padding:22px 20px; }
+  .header-inner{ max-width:960px; margin:0 auto; }
+  .eyebrow{ font-size:0.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); font-weight:700; margin:0 0 6px; }
+  h1{ font-size:1.5rem; margin:0 0 4px; color:#fff; }
+  .subtitle{ font-size:0.95rem; color:#d7e2e8; margin:0; }
+  main{ flex:1; max-width:960px; width:100%; margin:0 auto; padding:24px 16px 60px; }
+  .card{ background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:24px; box-shadow:0 4px 14px rgba(28,58,82,0.08); }
+  .theory-card{ background:var(--yellow-bg); border:1px solid var(--yellow-border); }
+  .theory-card h2{ font-size:1.2rem; color:var(--navy); margin:0 0 12px; }
+  .theory-card p{ font-size:1rem; margin:0; }
+
+  .characters{ display:flex; gap:20px; flex-wrap:wrap; margin-top:18px; }
+  .char-card{ flex:1; min-width:220px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+  .char-card svg{ width:120px; height:auto; margin-bottom:8px; }
+  .char-card h3{ margin:0 0 2px; font-size:1.05rem; color:var(--navy); }
+  .char-card p{ margin:0; font-size:0.85rem; color:var(--text-soft); }
+
+  .progress-line{ font-size:0.85rem; color:var(--text-soft); margin-bottom:16px; display:flex; justify-content:space-between; }
+  .item-sentence{ font-size:1.08rem; margin:0 0 16px; }
+  .opt-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:6px; }
+  .opt-btn{ display:flex; gap:14px; align-items:flex-start; text-align:left; width:100%; padding:14px 16px; border-radius:12px; border:2px solid var(--border); background:var(--card-bg); color:var(--text); font-size:1rem; cursor:pointer; min-height:52px; }
+  .opt-btn:hover:not(:disabled){ border-color:var(--teal-strong); background:#f0f9f8; }
+  .opt-btn .marker{ flex-shrink:0; width:28px; height:28px; border-radius:50%; background:#eef0ec; color:var(--text-soft); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; }
+  .opt-btn.correct{ border-color:var(--emerald-border); background:var(--emerald-bg); }
+  .opt-btn.correct .marker{ background:var(--emerald); color:#fff; }
+  .opt-btn.wrong{ border-color:var(--rose-border); background:var(--rose-bg); }
+  .opt-btn.wrong .marker{ background:var(--rose); color:#fff; }
+  .opt-btn:disabled{ cursor:default; }
+  .opt-btn.dim{ opacity:0.6; }
+  .opt-btn.checkbox-style{ align-items:center; }
+  .opt-btn .box{ flex-shrink:0; width:24px; height:24px; border-radius:6px; border:2px solid var(--border); }
+  .opt-btn.checked .box{ background:var(--teal-strong); border-color:var(--teal-strong); }
+
+  .match-row{ display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .match-label{ flex:1; min-width:180px; font-size:1rem; background:#f0f9f8; border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  select{ flex:1; min-width:180px; font-size:1rem; padding:12px 14px; border-radius:10px; border:2px solid var(--border); font-family:inherit; background:#fff; color:var(--text); }
+  select:focus-visible{ outline:3px solid var(--teal-strong); border-color:var(--teal-strong); }
+
+  .feedback{ border-radius:10px; padding:14px 16px; font-size:0.95rem; line-height:1.6; margin-top:14px; display:flex; gap:10px; align-items:flex-start; }
+  .feedback.ok{ background:var(--emerald-bg); border:1px solid var(--emerald-border); color:#163f2b; }
+  .feedback.bad{ background:var(--rose-bg); border:1px solid var(--rose-border); color:#5c1e23; }
+  .feedback .icon{ font-size:1.2rem; flex-shrink:0; }
+  .feedback strong{ display:block; margin-bottom:2px; }
+
+  .btn{ font-size:1rem; font-weight:700; border-radius:10px; padding:13px 24px; border:none; cursor:pointer; min-height:48px; }
+  .btn-primary{ background:var(--teal-strong); color:#fff; }
+  .btn-primary:hover:not(:disabled){ background:var(--teal-strong-hover); }
+  .btn-primary:disabled{ background:#c7cdd0; color:#7d8489; cursor:not-allowed; }
+  .btn-secondary{ background:var(--navy); color:#fff; }
+  .btn-secondary:hover{ background:var(--navy-dark); }
+  .row-end{ display:flex; justify-content:flex-end; margin-top:14px; }
+
+  .result-card{ text-align:center; }
+  .result-score{ font-size:2.4rem; font-weight:800; color:var(--teal-strong-hover); font-family:monospace; }
+  footer{ border-top:1px solid var(--border); background:var(--card-bg); padding:14px; text-align:center; font-size:0.85rem; color:var(--text-soft); }
+  @media (max-width:600px){ html{ font-size:16.5px; } .card{ padding:18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="eyebrow">Unidad 2 · Tema 3 · El espejo africano</p>
+    <h1>El poder de las palabras: María Petra y Dorel</h1>
+    <p class="subtitle">Un diálogo, dos formas de hablar, y todo lo que revelan sobre el poder y la sumisión.</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="card theory-card">
+    <h2>La escena</h2>
+    <p>En el inicio del capítulo 2, María Petra advierte a Dorel sobre peligros inventados —moros que rondan en busca de cabezas, un insecto que provoca una extraña afección en la piel— para que no se anime a cruzar el umbral de la casa. Cuando el joven intenta responder con un «Pero...», ella lo interrumpe y se burla con una frase que se volvió célebre en esta escena: «ni de peros, ni de peras, ni de Pérez».</p>
+    <div class="characters">
+      <div class="char-card">
+        <svg viewBox="0 0 200 220"><circle cx="100" cy="110" r="95" fill="#eaf6f5"/><path d="M 40,220 Q 40,150 100,150 Q 160,150 160,220 Z" fill="#3a6b8a"/><path d="M 60,220 Q 60,160 100,160 Q 140,160 140,220 Z" fill="#f0ead9"/><rect x="88" y="115" width="24" height="30" fill="#e8c9a0"/><circle cx="100" cy="95" r="42" fill="#f0d3ab"/><path d="M 58,90 Q 55,45 100,42 Q 145,45 142,90 Q 142,60 100,58 Q 58,60 58,90 Z" fill="#5b3a24"/><path d="M 58,88 Q 56,110 64,120 Q 60,95 66,80 Z" fill="#5b3a24"/><path d="M 142,88 Q 144,110 136,120 Q 140,95 134,80 Z" fill="#5b3a24"/><circle cx="85" cy="95" r="4" fill="#2b2118"/><circle cx="115" cy="95" r="4" fill="#2b2118"/><path d="M 78,86 Q 85,82 92,86" stroke="#5b3a24" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 108,86 Q 115,82 122,86" stroke="#5b3a24" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 100,95 L 97,108 Q 100,111 103,108" stroke="#c9a374" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M 90,120 Q 100,117 110,120" stroke="#8a4a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+        <h3>Dorel</h3>
+        <p>17 años, huérfano, sueña con tocar el violín</p>
+      </div>
+      <div class="char-card">
+        <svg viewBox="0 0 200 220"><circle cx="100" cy="110" r="95" fill="#fdf3d0"/><path d="M 35,220 Q 35,145 100,148 Q 165,145 165,220 Z" fill="#4a3b52"/><path d="M 55,220 Q 58,165 100,165 Q 142,165 145,220 Z" fill="#6b5570"/><rect x="88" y="118" width="24" height="26" fill="#dcb896"/><circle cx="100" cy="96" r="40" fill="#e6c19c"/><path d="M 62,92 Q 58,50 100,48 Q 142,50 138,92 Q 140,65 100,62 Q 60,65 62,92 Z" fill="#c9c6c2"/><circle cx="100" cy="44" r="14" fill="#c9c6c2"/><path d="M 79,96 Q 84,92 90,96" stroke="#2b2118" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 110,96 Q 116,92 121,96" stroke="#2b2118" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 76,84 Q 84,80 92,85" stroke="#8a8680" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 108,85 Q 116,80 124,84" stroke="#8a8680" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 100,97 L 96,110 Q 100,113 104,110" stroke="#b5895f" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M 88,122 Q 100,118 112,122" stroke="#7a3b3b" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="100" cy="168" r="6" fill="#ecd98a"/></svg>
+        <h3>María Petra</h3>
+        <p>dueña de la tienda de antigüedades, tutora de Dorel</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="quizArea"></section>
+
+</main>
+
+<footer>Las preguntas y la retroalimentación de esta actividad retoman el cuestionario original del equipo docente de Adultos 2000. El diálogo se resume en palabras propias; solo una frase breve va entre comillas, tal como corresponde al citar un texto literario.</footer>
+
+<script>
+const ITEMS = [
+  { type:'single',
+    q:'Cuando Dorel intenta decir «Pero...» y María Petra lo interrumpe, ¿qué revela esto sobre la relación entre ambos?',
+    options:['Que existe un diálogo fluido y de respeto mutuo','Que existe una jerarquía en la que María Petra anula la voz de Dorel','Que Dorel no tiene interés en lo que dice la anciana','Que María Petra está apurada por terminar la conversación'],
+    correct:1,
+    explain:'La interrupción es una marca de ejercicio de poder: al no dejar terminar la frase de Dorel, María Petra muestra que solo su palabra tiene valor en esa casa.' },
+  { type:'single',
+    q:'María Petra le responde con la frase «ni de peros, ni de peras, ni de Pérez». ¿Qué rasgo de su personalidad se destaca ahí?',
+    options:['Su conocimiento del lenguaje','Su paciencia','Su autoritarismo','Su sentido del humor'],
+    correct:2,
+    explain:'El juego de palabras no busca hacer reír: burlarse de la conjunción que usa Dorel deslegitima cualquier intento suyo de razonar, y clausura su pensamiento.' },
+  { type:'tf',
+    q:'La función narrativa de este diálogo es caracterizar a María Petra como una opresora y a Dorel como un oprimido.',
+    correct:true,
+    explain:'El intercambio verbal establece con claridad los roles de control y sumisión entre ambos personajes.' },
+  { type:'single',
+    q:'María Petra llama a sus propias advertencias «enseñanzas». ¿Cómo se caracteriza a sí misma con esa palabra?',
+    options:['Como alguien que quiere aprender de Dorel','Como una víctima del mundo exterior','Como una persona que posee la verdad absoluta','Como una mujer humilde que da consejos'],
+    correct:2,
+    explain:'Al llamar "enseñanzas" a sus propias palabras, se coloca en un lugar de superioridad: no ofrece consejos, presenta sus prejuicios como si fueran la única verdad.' },
+  { type:'tf',
+    q:'María Petra inventa males como una extraña afección en la piel porque es una experta en medicina.',
+    correct:false,
+    explain:'No tiene ningún fin médico: María Petra inventa consecuencias físicas para infundir miedo en Dorel y asegurar su obediencia.' },
+  { type:'multi',
+    context:'Más adelante en el capítulo 2, un maestro visita a Dorel para enseñarle letras y números. Cuando María Petra insiste en que "los moros" son un peligro real, el maestro la desmiente con un dato histórico concreto. Es la primera vez que Dorel se anima a dudar en voz alta de las advertencias de su tutora — y esa duda tiene consecuencias: María Petra, furiosa, termina echando al maestro de la casa.',
+    q:'Marcá las tres afirmaciones correctas sobre la función de este episodio (el diálogo inicial + la expulsión del maestro) en la novela:',
+    options:[
+      'Refleja un quiebre en la obediencia de Dorel hacia la anciana',
+      'Impulsa la acción dramática al provocar la expulsión del maestro',
+      'Demuestra que María Petra reflexiona sobre sus propios errores',
+      'Caracteriza a Dorel como un joven sensible y con vida interior',
+      'Confirma que María Petra quiere la felicidad del joven'
+    ],
+    correctSet:[0,1,3],
+    explain:'Dorel se muestra sensible y capaz de cuestionar a la anciana con datos reales: ese quiebre en su obediencia es lo que finalmente impulsa la expulsión del maestro. María Petra, lejos de reflexionar o buscar la felicidad de Dorel, responde reafirmando su control a través del aislamiento.' },
+  { type:'tf',
+    q:'Al prohibir la entrada de los libros del maestro, María Petra demuestra una actitud conservadora que busca evitar que nuevas ideas alteren su control sobre Dorel.',
+    correct:true,
+    explain:'El conocimiento representa una amenaza para María Petra: al evitar que Dorel acceda a nuevas ideas, intenta mantener intacto el control basado en el miedo y la ignorancia.' },
+  { type:'match',
+    q:'Relacioná cada descripción del ambiente con el efecto que el narrador busca producir en el lector:',
+    pairs:[
+      {left:'"Olor a encierro"', right:'Falta de libertad'},
+      {left:'"Reloj de péndulo lento"', right:'Aburrimiento'},
+      {left:'"Luz que se filtra"', right:'Mundo exterior'}
+    ],
+    explain:'El "olor a encierro" funciona como metáfora de la vida cautiva de Dorel. El "reloj de péndulo lento" refuerza la sensación de que el tiempo no fluye. La "luz que se filtra" es el pequeño contacto con el mundo exterior, una invitación a romper el aislamiento.' },
+  { type:'tf',
+    q:'Para narrar esta escena, el narrador usa verbos como "vociferó" para las acciones de María Petra, y verbos como "intentó decir" para las de Dorel. ¿Es correcto que esta elección busca que el lector sienta rechazo hacia ella y empatía hacia él?',
+    correct:true,
+    explain:'Si el narrador usara verbos neutros como "dijo" para ambos, no percibiríamos la desigualdad en el modo de hablar. "Vociferó" connota violencia y descontrol; "intentó decir" connota timidez y una voz que no llega a imponerse. Esa elección de palabras guía nuestros sentimientos hacia el rechazo del autoritarismo y la compasión por el silencio forzado de Dorel.' }
+];
+
+let idx=0, score=0, answered=false, finished=false;
+let selectedSingle=null, selectedMulti=new Set(), matchChoices={};
+const quizArea = document.getElementById('quizArea');
+
+function render(){
+  if(finished){
+    const pct = score/ITEMS.length;
+    quizArea.innerHTML = `
+      <div class="result-card">
+        <p style="font-size:2.4rem; margin:0 0 6px;">${pct===1?'✨':pct>=0.6?'🙂':'📘'}</p>
+        <p class="result-score">${score} / ${ITEMS.length}</p>
+        <p style="margin:14px 0 22px;">${pct===1?'¡Excelente lectura del diálogo y de sus efectos narrativos!':pct>=0.6?'Buen análisis. Repasá los ítems que fallaste para afinar los detalles.':'Volvé a leer la escena y repasá los conceptos de jerarquía, poder y ambiente narrativo.'}</p>
+        <button class="btn btn-primary" onclick="restart()">Volver a intentar</button>
+      </div>`;
+    return;
+  }
+
+  const it = ITEMS[idx];
+  let bodyHtml = '';
+
+  if(it.type === 'single'){
+    bodyHtml = `<div class="opt-list" id="optList">
+      ${it.options.map((o,i)=>`<button class="opt-btn" data-i="${i}" onclick="selectSingle(${i})"><span class="marker">${i+1}</span><span>${o}</span></button>`).join('')}
+    </div>`;
+  } else if(it.type === 'tf'){
+    bodyHtml = `<div class="opt-list" id="optList">
+      <button class="opt-btn" data-v="true" onclick="selectTF(true)"><span class="marker">V</span><span>Verdadero</span></button>
+      <button class="opt-btn" data-v="false" onclick="selectTF(false)"><span class="marker">F</span><span>Falso</span></button>
+    </div>`;
+  } else if(it.type === 'multi'){
+    bodyHtml = `<div class="opt-list" id="optList">
+      ${it.options.map((o,i)=>`<button class="opt-btn checkbox-style" data-i="${i}" onclick="toggleMulti(${i})"><span class="box"></span><span>${o}</span></button>`).join('')}
+    </div>
+    <div class="row-end"><button class="btn btn-primary" id="confirmMulti" onclick="confirmMulti()" disabled>Confirmar selección</button></div>`;
+  } else if(it.type === 'match'){
+    bodyHtml = `<div id="matchArea">
+      ${it.pairs.map((p,i)=>`
+        <div class="match-row">
+          <div class="match-label">${p.left}</div>
+          <select id="match-${i}" onchange="onMatchChange()">
+            <option value="">Elegí un efecto...</option>
+            ${it.pairs.map(opt=>`<option value="${opt.right}">${opt.right}</option>`).join('')}
+          </select>
+        </div>`).join('')}
+    </div>
+    <div class="row-end"><button class="btn btn-primary" id="confirmMatch" onclick="confirmMatch()" disabled>Confirmar relaciones</button></div>`;
+  }
+
+  const contextHtml = it.context ? `<div style="background:#f0f9f8; border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; color:var(--text-soft);">${it.context}</div>` : '';
+
+  quizArea.innerHTML = `
+    <div class="progress-line"><span>Pregunta ${idx+1} de ${ITEMS.length}</span><span>Puntaje: ${score}</span></div>
+    ${contextHtml}
+    <p class="item-sentence">${it.q}</p>
+    ${bodyHtml}
+    <div id="feedbackArea"></div>
+  `;
+}
+
+function lockOptions(){
+  document.querySelectorAll('#optList .opt-btn').forEach(b=> b.disabled = true);
+}
+
+function showFeedback(correct, explainText){
+  answered = true;
+  if(correct) score++;
+  document.getElementById('feedbackArea').innerHTML = `
+    <div class="feedback ${correct?'ok':'bad'}">
+      <span class="icon">${correct?'✓':'✕'}</span>
+      <div><strong>${correct?'Correcto.':'No es así.'}</strong> ${explainText}</div>
+    </div>
+    <div class="row-end">
+      <button class="btn btn-secondary" onclick="next()">${idx+1===ITEMS.length?'Ver resultado final':'Siguiente pregunta'}</button>
+    </div>`;
+}
+
+function selectSingle(i){
+  if(answered) return;
+  const it = ITEMS[idx];
+  const correct = i === it.correct;
+  document.querySelectorAll('#optList .opt-btn').forEach((b,bi)=>{
+    if(bi === it.correct) b.classList.add('correct');
+    else if(bi === i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  lockOptions();
+  showFeedback(correct, it.explain);
+}
+
+function selectTF(v){
+  if(answered) return;
+  const it = ITEMS[idx];
+  const correct = v === it.correct;
+  document.querySelectorAll('#optList .opt-btn').forEach(b=>{
+    const bv = b.getAttribute('data-v') === 'true';
+    if(bv === it.correct) b.classList.add('correct');
+    else if(bv === v) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  lockOptions();
+  showFeedback(correct, it.explain);
+}
+
+function toggleMulti(i){
+  if(answered) return;
+  const btn = document.querySelector(`#optList .opt-btn[data-i="${i}"]`);
+  if(selectedMulti.has(i)){ selectedMulti.delete(i); btn.classList.remove('checked'); }
+  else { selectedMulti.add(i); btn.classList.add('checked'); }
+  document.getElementById('confirmMulti').disabled = selectedMulti.size === 0;
+}
+
+function confirmMulti(){
+  if(answered) return;
+  const it = ITEMS[idx];
+  const correctSet = new Set(it.correctSet);
+  const isCorrect = selectedMulti.size === correctSet.size && [...selectedMulti].every(v=>correctSet.has(v));
+  document.querySelectorAll('#optList .opt-btn').forEach((b,bi)=>{
+    b.disabled = true;
+    if(correctSet.has(bi)) b.classList.add('correct');
+    else if(selectedMulti.has(bi)) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  document.getElementById('confirmMulti').disabled = true;
+  showFeedback(isCorrect, it.explain);
+}
+
+function onMatchChange(){
+  const it = ITEMS[idx];
+  let allFilled = true;
+  it.pairs.forEach((p,i)=>{
+    const val = document.getElementById(`match-${i}`).value;
+    if(!val) allFilled = false;
+  });
+  document.getElementById('confirmMatch').disabled = !allFilled;
+}
+
+function confirmMatch(){
+  if(answered) return;
+  const it = ITEMS[idx];
+  let allCorrect = true;
+  it.pairs.forEach((p,i)=>{
+    const sel = document.getElementById(`match-${i}`);
+    sel.disabled = true;
+    if(sel.value === p.right){
+      sel.style.borderColor = 'var(--emerald)';
+      sel.style.background = 'var(--emerald-bg)';
+    } else {
+      allCorrect = false;
+      sel.style.borderColor = 'var(--rose)';
+      sel.style.background = 'var(--rose-bg)';
+    }
+  });
+  document.getElementById('confirmMatch').disabled = true;
+  showFeedback(allCorrect, it.explain);
+}
+
+function next(){
+  idx++; answered=false; selectedSingle=null; selectedMulti=new Set(); matchChoices={};
+  if(idx >= ITEMS.length){ finished = true; }
+  render();
+}
+function restart(){
+  idx=0; score=0; answered=false; finished=false; selectedSingle=null; selectedMulti=new Set(); matchChoices={};
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
