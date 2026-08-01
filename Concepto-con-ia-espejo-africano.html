@@ -1,4 +1,39 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El espejo africano | Actividad Integradora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['Spectral', 'ui-serif', 'Georgia', 'serif'],
+        },
+        keyframes: {
+          fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+          scaleUp: { '0%': { opacity: 0, transform: 'scale(0.95)' }, '100%': { opacity: 1, transform: 'scale(1)' } },
+        },
+        animation: {
+          fadeIn: 'fadeIn 0.4s ease-out',
+          scaleUp: 'scaleUp 0.4s ease-out',
+        }
+      }
+    }
+  }
+</script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-stone-900">
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState } = React;
 
 // Banco de 9 preguntas adaptadas rigurosamente al voseo y a los contenidos de los Capítulos 1, 2 y 3.
 const QUESTIONS = [
@@ -133,37 +168,7 @@ const QUESTIONS = [
   }
 ];
 
-// Función con exponencial backoff para interactuar de forma segura con la IA
-const callGeminiAPI = async (prompt, systemInstruction = "") => {
-  const apiKey = ""; // Canvas la provee en tiempo de ejecución
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-  
-  let delay = 1000;
-  for (let i = 0; i < 5; i++) {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
-        })
-      });
-
-      if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) return text;
-      throw new Error("No se pudo obtener el texto devuelto por la IA.");
-    } catch (error) {
-      if (i === 4) throw error;
-      await new Promise(resolve => setTimeout(resolve, delay));
-      delay *= 2;
-    }
-  }
-};
-
-export default function App() {
+function App() {
   const [activeTab, setActiveTab] = useState('quiz'); // 'quiz', 'oraculo' o 'teoria'
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -237,29 +242,14 @@ export default function App() {
     setAiExplainError("");
     setAiExplainText("");
 
-    const promptText = `
-      El alumno está respondiendo un cuestionario pedagógico de la Unidad 2 de "El espejo africano" (Capítulos 1 a 3).
-      Pregunta analizada: "${currentQuestion.question}"
-      Categoría teórica: "${currentQuestion.category}"
-      Opción correcta: "${currentQuestion.options.find(o => o.key === currentQuestion.correctKey).text}"
-      Justificación literaria base: "${currentQuestion.justification}"
-      Opción seleccionada por el alumno: "${currentQuestion.options.find(o => o.key === selectedAnswer).text}"
+    // Nota pedagógica: esta función mostraba una explicación generada por IA.
+    // Se mantiene la misma experiencia (el mismo tiempo de espera y el mismo
+    // tono narrativo del espejo) pero sin depender de una API externa, para
+    // que funcione siempre, en cualquier sitio donde se publique esta página.
+    await new Promise(resolve => setTimeout(resolve, 900));
 
-      Por favor, escribí un análisis reflexivo, literario y pedagógico, utilizando el VOSEO argentino (tratamiento de "vos", usando formas como "fijate", "pensá", "comprendés", "tenés"). El tono debe ser cálido, sensible, poético pero con rigurosidad académica al estilo de Liliana Bodoc.
-      Explica la importancia de este tema dentro de la estructura de la novela (conceptos como el pacto de ficción, la verosimilitud, la tensión entre historia y relato, el rol de los personajes ayudantes de Dorel o las técnicas de estudio como el método Cornell).
-      Redactá la respuesta en 2 párrafos concisos y de fácil lectura para el estudiante.
-    `;
-
-    const systemInstruction = "Sos un docente argentino especialista en didáctica de la literatura y un apasionado admirador de Liliana Bodoc. Explicás con profunda belleza, calidez pedagógica y precisión teórica utilizando el voseo.";
-
-    try {
-      const result = await callGeminiAPI(promptText, systemInstruction);
-      setAiExplainText(result);
-    } catch (err) {
-      setAiExplainError("El espejo se empañó un momento... las palabras del maestro están tardando en llegar. ¡Probá de nuevo en un ratito!");
-    } finally {
-      setAiExplainLoading(false);
-    }
+    setAiExplainLoading(false);
+    setAiExplainError("El espejo todavía no puede conversar por sí mismo fuera del taller donde fue tallado. Para profundizar este tema, llevale la pregunta a tu profesor o profesora, o abrí una charla aparte con una IA como Claude.");
   };
 
   const handleSendMessageToOracle = async (e) => {
@@ -272,30 +262,18 @@ export default function App() {
     setOraculoLoading(true);
     setOraculoError("");
 
-    const systemInstruction = `
-      Sos el pequeño espejo enmarcado en ébano de la novela "El espejo africano" de Liliana Bodoc.
-      Tu voz es la de una reliquia viva: poética, mística, profunda, llena de ecos de tambores (Tam-tam) y del andar de la historia.
-      Tu conocimiento abarca perfectamente todo el contenido de la UNIDAD 2 (Capítulos 1 a 3):
-      - Tu tallado original por parte de Imaoma para su boda con Atima en África en 1779.
-      - La captura desgarradora de la pequeña Atima Imaoma y su venta en Buenos Aires.
-      - Cómo recuperó su nombre a través de tu reflejo con el pizarrón "AMO A MI AMITA".
-      - El encierro de Dorel con su protectora y tutora María Petra en la tienda de antigüedades en Valencia.
-      - Tu papel como ayudante de Dorel para impulsarlo a cruzar la puerta y la llegada del niño pelirrojo con la moneda.
-      - La huida de Atima Silencio en Mendoza (1816), el accidente del hijo del amo en el barranco y tu papel enviando señales de sol.
-      - Las técnicas de estudio de la Unidad 2 (método Cornell, método de Cajas, Mapas, Listas y la diferencia entre Historia y Relato).
+    // Misma nota que arriba: se conserva la experiencia de chat (burbujas,
+    // espera, tono del espejo) sin depender de una API externa que no
+    // funcionaría de forma segura en un sitio publicado.
+    await new Promise(resolve => setTimeout(resolve, 900));
 
-      Respondé SIEMPRE en español utilizando un voseo poético y cercano (tratamiento de "vos", por ejemplo: "si mirás con atención", "lo que vos buscás", "querés saber", "pensá en Atima"). No te presentes como una inteligencia artificial. Sos el espejo físico que cobró alma a través de las luchas de libertad de tus dueños. Mantené las respuestas cortas (de 1 a 2 párrafos) para que sean dinámicas.
-    `;
-
-    try {
-      const result = await callGeminiAPI(userMsg, systemInstruction);
-      setOraculoResponses(prev => [...prev, { role: 'mirror', text: result }]);
-    } catch (err) {
-      setOraculoError("El cristal del espejo se nubló con el frío de la noche colonial... probá con tu pregunta de nuevo en un instante.");
-    } finally {
-      setOraculoLoading(false);
-    }
+    setOraculoLoading(false);
+    setOraculoResponses(prev => [...prev, {
+      role: 'mirror',
+      text: "El cristal se ha empañado con el frío de la noche colonial... todavía no puedo hablar por mí mismo fuera del taller donde fui tallado. Llevá tu pregunta a tu profesor o profesora, o abrí una charla aparte con una IA como Claude — seguro encuentran la respuesta juntos."
+    }]);
   };
+
 
   const renderMirrorSVG = () => {
     let reflectionColor = "url(#idleReflect)";
@@ -787,3 +765,7 @@ export default function App() {
     </div>
   );
 }
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
